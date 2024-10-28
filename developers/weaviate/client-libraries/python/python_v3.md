@@ -1,19 +1,39 @@
 ---
-title: Python (Client v3)
-sidebar_position: 15
+title: "Legacy (v3) API (DEPRECATED)"
+sidebar_position: 80
 image: og/docs/client-libraries.jpg
 # tags: ['python', 'client library']
 ---
 
+:::info `v3` client is deprecated
+This document relates to the legacy `v3` client and API.
+<br/>
 
-:::note Python client version
-The current Python client version is `v||site.python_client_version||`
-:::
+Starting in December 2024, the `v4` [client installations](https://pypi.org/project/weaviate-client/) will no longer include the `v3` API (i.e. the `weaviate.Client` class). This will help us to provide the best developer experience for you, support for the latest features, and clearly separate the two.
+<br/>
 
-:::info `v4` client available
-This document relates to the `v3` client. We recommend you upgrade to the [`v4` client](./index.md) if possible. The `v3` client is still available for backwards compatibility, and receive with bug fixes and security updates, but it will be updated with new Weaviate features, and may be subset sometime in the second half of 2024.
+The `v3` client will continue to get critical security updates and bugfixes for the foreseeable future, but it will not support any new features.
+<br/>
 
-We also have a [migration guide for moving from `v3` client to the `v4`](./v3_v4_migration.md).
+**What does this mean for me?**
+<br/>
+
+To take advantage of the latest developments on the Weaviate core database, we recommend migrating your codebase to use the [`v4` client API](./index.md).
+<br/>
+
+Our documentation includes [a migration guide here](./v3_v4_migration.md), and many code examples include both `v3` and `v4` syntax. We will be adding more dedicated resources for you to ease the migration experience.
+<br/>
+
+If you have an existing codebase and Weaviate core database that you expect to remain static, we recommend pinning the version in your requirements file (e.g. `requirements.txt`), like so:
+
+```bash
+  weaviate-client>=3.26.7,<4.0.0
+```
+
+We appreciate that code migration can be cumbersome, but we feel strongly that the end experience and feature set will make your time worthwhile.
+<br/>
+
+If you have specific requests for migration documentation or resources, please reach out through [our GitHub repository](https://github.com/weaviate/weaviate-io/issues).
 :::
 
 ## Installation and setup
@@ -37,7 +57,7 @@ Now you can use the client in your Python scripts as follows:
 ```python
 import weaviate
 
-client = weaviate.Client("https://some-endpoint.weaviate.network")  # Replace the URL with that of your Weaviate instance
+client = weaviate.Client("https://WEAVIATE_INSTANCE_URL")  # Replace WEAVIATE_INSTANCE_URL with your instance URL.
 
 assert client.is_ready()  # Will return True if the client is connected & the server is ready to accept requests
 ```
@@ -48,7 +68,7 @@ Or, with additional arguments such as those below:
 import weaviate
 
 client = weaviate.Client(
-  url="https://some-endpoint.weaviate.network",  # URL of your Weaviate instance
+  url="https://WEAVIATE_INSTANCE_URL",  # URL of your Weaviate instance
   auth_client_secret=auth_config,  # (Optional) If the Weaviate instance requires authentication
   timeout_config=(5, 15),  # (Optional) Set connection timeout & read timeout time in seconds
   additional_headers={  # (Optional) Any additional headers; e.g. keys for API inference services
@@ -67,11 +87,11 @@ import ClientAuthIntro from '/developers/weaviate/client-libraries/_components/c
 
 <ClientAuthIntro clientName="Python"/>
 
-### WCS authentication
+### WCD authentication
 
-import ClientAuthWCS from '/developers/weaviate/client-libraries/_components/client.auth.wcs.mdx'
+import ClientAuthWCD from '/developers/weaviate/client-libraries/_components/client.auth.wcs.mdx'
 
-<ClientAuthWCS />
+<ClientAuthWCD />
 
 ### API key authentication
 
@@ -85,11 +105,11 @@ import ClientAuthApiKey from '/developers/weaviate/client-libraries/_components/
 ```python
 import weaviate
 
-auth_config = weaviate.auth.AuthApiKey(api_key="YOUR-WEAVIATE-API-KEY")  # Replace w/ your Weaviate instance API key
+auth_config = weaviate.auth.AuthApiKey(api_key="YOUR-WEAVIATE-API-KEY")  # Replace with your Weaviate instance API key
 
 # Instantiate the client with the auth config
 client = weaviate.Client(
-    url="https://some-endpoint.weaviate.network",  # Replace w/ your endpoint
+    url="https://WEAVIATE_INSTANCE_URL",  # Replace with your Weaviate endpoint
     auth_client_secret=auth_config
 )
 ```
@@ -112,7 +132,7 @@ import weaviate
 resource_owner_config = weaviate.AuthClientPassword(
   username = "user",
   password = "pass",
-  scope = "offline_access" # optional, depends on the configuration of your identity provider (not required with WCS)
+  scope = "offline_access" # optional, depends on the configuration of your identity provider (not required with WCD)
   )
 
 # Initiate the client with the auth config
@@ -130,7 +150,7 @@ import weaviate
 
 client_credentials_config = weaviate.AuthClientCredentials(
   client_secret = "client_secret",
-  scope = "scope1 scope2" # optional, depends on the configuration of your identity provider (not required with WCS)
+  scope = "scope1 scope2" # optional, depends on the configuration of your identity provider (not required with WCD)
   )
 
 # Initiate the client with the auth config
@@ -176,7 +196,7 @@ There is a variety of neural search frameworks that use Weaviate under the hood 
 
 # References documentation
 
-On this Weaviate documentation website, you will find how to use the Python client for all [RESTful endpoints](../../api/rest/index.md) and [GraphQL functions](../../api/graphql/index.md). For each reference, a code block is included with an example of how to use the function with the Python (and other) clients. The Python client, however, has additional functionalities, which are covered in the full client documentation on [weaviate-python-client.readthedocs.io](https://weaviate-python-client.readthedocs.io/en/stable/). Some of these additional functions are highlighted here below.
+On this Weaviate documentation website, you will find how to use the Python client for all [RESTful endpoints](/developers/weaviate/api/rest) and [GraphQL functions](../../api/graphql/index.md). For each reference, a code block is included with an example of how to use the function with the Python (and other) clients. The Python client, however, has additional functionalities, which are covered in the full client documentation on [weaviate-python-client.readthedocs.io](https://weaviate-python-client.readthedocs.io/en/stable/). Some of these additional functions are highlighted here below.
 
 ### Example: client.schema.create(schema)
 Instead of adding classes one by one using the RESTful `v1/schema` endpoint, you can upload a full schema in JSON format at once using the Python client. Use the function `client.schema.create(schema)` as follows:
@@ -873,7 +893,9 @@ While the Python client is fundamentally designed to be thread-safe, it's import
 
 This is an area that we are looking to improve in the future.
 
-Please be particularly aware that the batching algorithm within our client is not thread-safe. Keeping this in mind will help ensure smoother, more predictable operations when using our Python client in multi-threaded environments.
+:::warning Thread safety
+The batching algorithm in our client is not thread-safe. Keep this in mind to help ensure smoother, more predictable operations when using our Python client in multi-threaded environments.
+:::
 
 If you are performing batching in a multi-threaded scenario, ensure that only one of the threads is performing the batching workflow at any given time. No two threads can use the same `client.batch` object at one time.
 
@@ -892,6 +914,8 @@ are hosted here:
 - [Read the Docs](https://weaviate-python-client.readthedocs.io/en/stable/changelog.html)
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

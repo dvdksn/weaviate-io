@@ -28,7 +28,7 @@ But while the future is here, it isn't yet perfect. Tools like Weaviate can seem
 
 So let's take a look inside the magic box together in this post.
 
-If you would like to follow along, the Jupyter notebook and data are available [here](https://github.com/weaviate/weaviate-examples/tree/main/text2vec-behind-curtain). You can use our free [Weaviate Cloud Services](https://console.weaviate.cloud) (WCS) sandbox, or set up your own Weaviate instance also.
+If you would like to follow along, the Jupyter notebook and data are available [here](https://github.com/weaviate/weaviate-examples/tree/main/text2vec-behind-curtain). You can use our free [Weaviate Cloud](https://console.weaviate.cloud) (WCD) sandbox, or set up your own Weaviate instance also.
 
 > Note: The vectorization is done by [Weaviate “core”](https://github.com/weaviate/weaviate) and not at the client level. So even though we use Python examples, the principles are universally applicable.
 Let's get started!
@@ -162,9 +162,18 @@ In other words - we have manually reproduced Weaviate's default vectorization pr
 
 ### Text vectorization in Weaviate
 
-import VectorizationBehavior from '/_includes/vectorization.behavior.mdx';
+Weaviate can generate vector embeddings for objects using [model provider integrations](/developers/weaviate/model-providers/).
 
-<VectorizationBehavior/>
+For instance, text embedding integrations (e.g. `text2vec-cohere` for Cohere, or `text2vec-ollama` for Ollama) can generate vectors from text objects. Weaviate follows the collection configuration and a set of predetermined rules to vectorize objects.
+
+Unless specified otherwise in the collection definition, the default behavior is to:
+
+- Only vectorize properties that use the `text` or `text[]` data type (unless [skip](/developers/weaviate/manage-data/collections#property-level-module-settings)ped)
+- Sort properties in alphabetical (a-z) order before concatenating values
+- If `vectorizePropertyName` is `true` (`false` by default) prepend the property name to each property value
+- Join the (prepended) property values with spaces
+- Prepend the class name (unless `vectorizeClassName` is `false`)
+- Convert the produced string to lowercase
 
 Now that we understand this, you might be asking - is it possible to customize the vectorization process? The answer is, yes, of course.
 
@@ -262,7 +271,6 @@ On the other hand, in some cases, it may be preferable to import text data with 
 
 Now that you've seen exactly what happens behind the curtains, we encourage you to try applying these concepts yourself the next time you are building something with Weaviate. While the changes to the similarities were somewhat minor in our examples, in some domains and corpora their impact may be certainly larger. And tweaking the exact vectorization scheme may provide that extra boost your Weaviate instance is looking for.
 
+import WhatsNext from '/_includes/what-next.mdx';
 
-import StayConnected from '/_includes/stay-connected.mdx'
-
-<StayConnected />
+<WhatsNext />

@@ -15,8 +15,6 @@ image: og/docs/concepts.jpg
   - Note: Configuration options from `HNSW` are now in `References: Configuration/Vector index#How to configure HNSW`
 ::: -->
 
-## Overview
-
 The **Concepts** section explains various aspects related to Weaviate and its architecture to help you get the most out of it. You can read these sections in any order.
 
 :::info
@@ -35,11 +33,15 @@ If you are after a practical guide, try the [quickstart tutorial](/developers/we
 
 **[Indexing](./indexing.md)**
 
-- Read how data is indexed within Weaviate using inverted and ANN indices, and about configurable settings.
+- Read how data is indexed within Weaviate using inverted and ANN indexes, and about configurable settings.
 
 **[Vector indexing](./vector-index.md)**
 
 - Read more about Weaviate's vector indexing architecture, such as the HNSW algorithm, distance metrics, and configurable settings.
+
+**[Vector quantization](./vector-quantization.md)**
+
+- Read more about Weaviate's vector quantization options.
 
 ## Weaviate Architecture
 
@@ -66,7 +68,7 @@ You can learn more about the individual components in this figure by following t
   * Speeding up specific processes
   * Preventing bottlenecks
 
-**[Filtered vector search](./prefiltering.md)**
+**[Filtered vector search](./filtering.md)**
   * Combine vector search with filters
   * Learn how combining an HNSW with an inverted index leads to high-recall, high-speed filtered queries
 
@@ -80,6 +82,8 @@ You can learn more about the individual components in this figure by following t
   * Use cases
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

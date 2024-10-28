@@ -5,21 +5,17 @@ image: og/docs/concepts.jpg
 # tags: ['basics']
 ---
 
-
-<!-- :::caution Migrated From:
-- `Core knowledge/Basics`
-  - Refactored to contain subject matter to data structure in Weaviate
-  - Introductory "What is Weaviate" sections removed as duplicated by `Introduction`
-  - `Console`, `Benchmarks` and `Monitoring` paragraphs removed
-::: -->
-
-## Data object nomenclature
+## Data object concepts
 
 Each data object in Weaviate belongs to a `collection` and has one or more `properties`.
 
 Weaviate stores `data objects` in class-based collections. Data objects are represented as JSON-documents. Objects normally include a `vector` that is derived from a machine learning model. The vector is also called an `embedding` or a `vector embedding`.
 
 Each collection contains objects of the same `class`. The objects are defined by a common `schema`.
+
+import InitialCaps from '/_includes/schemas/initial-capitalization.md'
+
+<InitialCaps />
 
 ### JSON documents as objects
 
@@ -117,9 +113,15 @@ The collection looks like this:
 
 Every collection has its own vector space. This means that different collections can have different embeddings of the same object.
 
-:::tip
+### UUIDs
+
 Every object stored in Weaviate has a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier). The UUID guarantees uniqueness across all collections.
-:::
+
+You can [use a deterministic UUID](../manage-data/import.mdx#specify-an-id-value) to ensure that the same object always has the same UUID. This is useful when you want to update an object without changing its UUID.
+
+If you don't specify an ID, Weaviate generates a random UUID for you.
+
+In requests without any other ordering specified, Weaviate processes them in ascending UUID order. This means that requests to [list objects](../search/basics.md#list-objects), use of the [cursor API](../manage-data/read-all-objects.mdx), or requests to [delete objects](../manage-data/delete.mdx#delete-multiple-objects-by-id), without any other ordering specified, will be processed in ascending UUID order.
 
 ### Cross-references
 
@@ -170,13 +172,13 @@ The value of the `beacon` sub-property is the `id` value from the New York Times
 
 Cross-reference relationships are directional. To make the link bi-directional, update the `Publication` collection to add a ``hasAuthors` property points back to the `Author` collection.
 
-### Multiple vectors
+### Multiple vectors (named vectors)
 
 import MultiVectorSupport from '/_includes/multi-vector-support.mdx';
 
 <MultiVectorSupport />
 
-## Weaviate Schema
+## Data Schema
 
 Weaviate requires a data schema before you add data. However, you don't have to create a data schema manually. If you don't provide one, Weaviate generates a schema based on the incoming data.
 
@@ -200,7 +202,6 @@ For details on configuring your schema, see the [schema tutorial](../starter-gui
 
 :::info Multi-tenancy availability
 - Multi-tenancy added in `v1.20`
-- The tenant activity status setting added in `v1.21`
 :::
 
 To separate data within a cluster, use multi-tenancy. Weaviate partitions the cluster into shards. Each shard holds data for a single tenant.
@@ -211,11 +212,70 @@ Sharding has several benefits:
 - Fast, efficient querying
 - Easy and robust setup and clean up
 
-Starting in `v1.20`, shards are more lightweight. You can easily have 50,000, or more, active shards per node. This means that you can support 1M concurrently active tenants with just 20 or so nodes.
-
-Starting in `v1.20.1`, you can specify tenants as active (`HOT`) or inactive (`COLD`). For more details on managing tenants, see [Multi-tenancy operations](../manage-data/multi-tenancy.md).
+Tenant shards are more lightweight. You can easily have 50,000, or more, active shards per node. This means that you can support 1M concurrently active tenants with just 20 or so nodes.
 
 Multi-tenancy is especially useful when you want to store data for multiple customers, or when you want to store data for multiple projects.
+
+:::caution Tenant deletion == Tenant data deletion
+Deleting a tenant deletes the associated shard. As a result, deleting a tenant also deletes all of its objects.
+:::
+
+### Tenant states
+
+:::info Multi-tenancy availability
+- Tenant activity status setting added in `v1.21`
+- `OFFLOADED` status added in `v1.26`
+:::
+
+Tenants have an activity status (also called a tenant state) that reflects their availability and storage location. A tenant can be `ACTIVE`, `INACTIVE`, `OFFLOADED`, `OFFLOADING`, or `ONLOADING`.
+
+- `ACTIVE` tenants are loaded and available for read and write operations.
+- In all other states, the tenant is not available for read or write access. Access attempts return an error message.
+    - `INACTIVE` tenants are stored on local disk storage for quick activation.
+    - `OFFLOADED` tenants are stored on cloud storage. This status is useful for long-term storage for tenants that are not frequently accessed.
+    - `OFFLOADING` tenants are being moved to cloud storage. This is a transient status, and therefore not user-specifiable.
+    - `ONLOADING` tenants are being loaded from cloud storage. This is a transient status, and therefore not user-specifiable. An `ONLOADING` tenant may be being warmed to a `ACTIVE` status or a `INACTIVE` status.
+
+For more details on managing tenants, see [Multi-tenancy operations](../manage-data/multi-tenancy.md).
+
+| Status | Available | Description | User-specifiable |
+| :-- | :-- | :-- | :-- |
+| `ACTIVE` | Yes | Loaded and available for read/write operations. | Yes |
+| `INACTIVE` | No | On local disk storage, no read / write access. Access attempts return an error message. | Yes |
+| `OFFLOADED` | No | On cloud storage, no read / write access. Access attempts return an error message. | Yes |
+| `OFFLOADING` | No | Being moved to cloud storage, no read / write access. Access attempts return an error message. | No |
+| `ONLOADING` | No | Being loaded from cloud storage, no read / write access. Access attempts return an error message. | No |
+
+:::info Tenant status renamed in `v1.26`
+In `v1.26`, the `HOT` status was renamed to `ACTIVE` and the `COLD` status was renamed to `INACTIVE`.
+:::
+
+:::info Tenant state propagation
+A tenant state change may take some time to propagate across a cluster, especially a multi-node cluster.
+
+<br/>
+
+For example, data may not be immediately available after reactivating an offloaded tenant. Similarly, data may not be immediately unavailable after offloading a tenant. This is because the [tenant states are eventually consistent](../concepts/replication-architecture/consistency.md#tenant-states-and-data-objects), and the change must be propagated to all nodes in the cluster.
+:::
+
+#### Offloaded tenants
+
+:::info Added in `v1.26.0`
+:::
+
+import OffloadingLimitation from '/_includes/offloading-limitation.mdx';
+
+<OffloadingLimitation/>
+
+Offloading tenants requires the relevant `offload-<storage>` module to be [enabled](../configuration/modules.md) in the Weaviate cluster.
+
+When a tenant is offloaded, the entire tenant shard is moved to cloud storage. This is useful for long-term storage of tenants that are not frequently accessed. Offloaded tenants are not available for read or write operations until they are loaded back into the cluster.
+
+### Backups
+
+:::caution Backups do not include inactive or offloaded tenants
+Backups of multi-tenant collections will only include `active` tenants, and not `inactive` or `offloaded` tenants. [Activate tenants](../manage-data/multi-tenancy.md#activate-tenant) before creating a backup to ensure all data is included.
+:::
 
 ### Tenancy and IDs
 
@@ -256,37 +316,14 @@ The number of tenants per node is limited by operating system constraints. The n
 
 For example, a 9-node test cluster built on `n1-standard-8` machines holds around 170k active tenants. There are 18,000 to 19,000 tenants per node.
 
-Note that these numbers relate to active tenants only. If you [set unused tenants as `inactive`](../api/rest/schema.md#update-tenants), the open file per process limit does not apply.
-
-### Lazy shard loading
-
-:::info Added in `v1.23`
-:::
-
-When Weaviate starts, it loads data from all of the shards in your deployment. This process can take a long time. Prior to v1.23, you have to wait until all of the shards are loaded before you can query your data. Since every tenant is a shard, multi-tenant deployments can have reduced availability after a restart.
-
-Lazy shard loading allows you to start working with your data sooner. After a restart, shards load in the background. If the shard you want to query is already loaded, you can get your results sooner. If the shard is not loaded yet, Weaviate prioritizes loading that shard and returns a response when it is ready.
-
-To enable lazy shard loading, set `DISABLE_LAZY_LOAD_SHARDS = false` in your system configuration file.
-
-### Tenant status
-
-:::info Added in `v1.21`
-:::
-
-Tenants are `HOT` or `COLD`. Tenant status determines if Weaviate can access the shard.
-
-| Status | State | Description |
-| :-- | :-- | :-- |
-|`HOT`| Active | Weaviate can read and write. |
-|`COLD`| Inactive | Weaviate cannot read or write. Access attempts return an error message. |
+Note that these numbers relate to active tenants only. If you [set unused tenants as `inactive`](../manage-data/multi-tenancy.md#deactivate-tenant), the open file per process limit does not apply.
 
 ## Related pages
 
 For more information, see the following:
 
 - [How-to manage data: Multi-tenancy operations](../manage-data/multi-tenancy.md)
-- [References: REST API: Schema: Multi-tenancy](../api/rest/schema.md#multi-tenancy)
+- [References: REST API: Schema](/developers/weaviate/api/rest#tag/schema)
 - [Configuration: Schema](../manage-data/collections.mdx)
 
 ## Summary
@@ -299,6 +336,8 @@ For more information, see the following:
 * Cross-references link objects between schemas.
 * Multi-tenancy isolates data for each tenant.
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

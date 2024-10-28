@@ -8,17 +8,20 @@ import os
 # CreateMovieCollection  # END SubmoduleImport
 
 # END CreateMovieCollection
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),  # Replace with your WCS URL
-    auth_credentials=weaviate.auth.AuthApiKey(
-        os.getenv("WCS_DEMO_ADMIN_KEY")
-    ),  # Replace with your WCS key
+
+from weaviate.classes.init import Auth
+
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),  # Replace with your WCD URL
+    auth_credentials=Auth.api_key(
+        os.getenv("WCD_DEMO_ADMIN_KEY")
+    ),  # Replace with your WCD key
 )
 
 # CreateMovieCollection
 # Instantiate your client (not shown). e.g.:
 # headers = {"X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")}  # Replace with your OpenAI API key
-# client = weaviate.connect_to_wcs(..., headers=headers) or
+# client = weaviate.connect_to_weaviate_cloud(..., headers=headers) or
 # client = weaviate.connect_to_local(..., headers=headers)
 
 # END CreateMovieCollection
@@ -60,18 +63,22 @@ from tqdm import tqdm
 import os
 
 # END BatchImportData
+
+from weaviate.classes.init import Auth
+
 headers = {"X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")}
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),  # Replace with your WCS URL
-    auth_credentials=weaviate.auth.AuthApiKey(
-        os.getenv("WCS_DEMO_ADMIN_KEY")
-    ),  # Replace with your WCS key
+
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),  # Replace with your WCD URL
+    auth_credentials=Auth.api_key(
+        os.getenv("WCD_DEMO_ADMIN_KEY")
+    ),  # Replace with your WCD key
     headers=headers,
 )
 
 # BatchImportData
 # Instantiate your client (not shown). e.g.:
-# client = weaviate.connect_to_wcs(...) or
+# client = weaviate.connect_to_weaviate_cloud(...) or
 # client = weaviate.connect_to_local(...)
 
 # END BatchImportData
@@ -85,7 +92,7 @@ df = pd.DataFrame(resp.json())
 movies = client.collections.get("Movie")
 
 # Enter context manager
-with movies.batch.rate_limit(2400) as batch:
+with movies.batch.dynamic() as batch:
     # Loop through the data
     for i, movie in tqdm(df.iterrows()):
         # Convert data types

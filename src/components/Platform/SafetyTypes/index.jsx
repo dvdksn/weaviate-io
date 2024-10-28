@@ -6,7 +6,7 @@ export default function SafetyTypes() {
   return (
     <div className="container">
       <div className={styles.title}>
-        <h2>Feature Overview</h2>
+        <h2>Open Source Vector Database Features</h2>
       </div>
       <div className={styles.box}>
         <div className={styles.card}>
@@ -36,7 +36,7 @@ export default function SafetyTypes() {
             <p>
               <Link
                 className={styles.cardLink}
-                to="/developers/weaviate/concepts/prefiltering"
+                to="/developers/weaviate/concepts/filtering"
               >
                 Learn more
               </Link>
@@ -70,7 +70,7 @@ export default function SafetyTypes() {
             <p>
               <Link
                 className={styles.cardLink}
-                to="/developers/weaviate/modules/retriever-vectorizer-modules"
+                to="/developers/weaviate/model-providers"
               >
                 Learn more
               </Link>
@@ -121,7 +121,7 @@ export default function SafetyTypes() {
             <p>
               <Link
                 className={styles.cardLink}
-                to="/developers/weaviate/configuration/pq-compression"
+                to="/developers/weaviate/configuration/compression/pq-compression"
               >
                 Learn more
               </Link>

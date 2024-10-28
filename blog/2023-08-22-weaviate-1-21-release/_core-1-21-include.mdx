@@ -13,8 +13,8 @@ Here are the ⭐️*highlights*⭐️ relating to this release:
 1. [Performance improvements](#performance-improvements) – A suite of improvements to search, indexing and backup performance.
 1. [Hybrid search algorithm refinement](#hybrid-search-algorithm-refinement) - Improved scoring stability for small limits in hybrid search.
 
-:::tip Available on WCS
-`1.21` is already available on [Weaviate Cloud Services](https://console.weaviate.cloud/) - so try it out!
+:::tip Available on WCD
+`1.21` is already available on [Weaviate Cloud](https://console.weaviate.cloud/) - so try it out!
 :::
 
 For more details, keep scrolling ⬇️!
@@ -88,18 +88,22 @@ A `ContainsAll` query on the other hand will return all `Person` objects whose `
 
 ### Deactivate / activate tenant shards (experimental)
 
+:::info Tenant status renamed in `v1.26`
+In `v1.26`, the `HOT` status was renamed to `ACTIVE` and the `COLD` status was renamed to `INACTIVE`.
+:::
+
 ![Activate / Deactivate tenants](./img/mt-inactive.png)
 
 We introduced multi-tenancy (MT) with `1.20`, and we are thrilled by your response so far.
 
 `1.21` adds an (experimental) feature to deactivate or activate individual tenants. This will allow you to scale even bigger with ease, because inactive tenants' data will not take up any space in memory.
 
-This is possible because under the hood, each [tenant is a partition shard](https://www.weaviate.io/blog/multi-tenancy-vector-search#built-in-isolation-through-lightweight-shards), and tenant shards can now be deactivated while still retaining the data. Deactivated (`COLD`) shards do not consume memory or file descriptors, so this enables an unlimited number of non-active shards, limited only by disk space, while giving active (`HOT`) shards access to resources that they need.
+This is possible because under the hood, each [tenant is a partition shard](https://www.weaviate.io/blog/multi-tenancy-vector-search#built-in-isolation-through-lightweight-shards), and tenant shards can now be deactivated while still retaining the data. Deactivated (`INACTIVE`) shards do not consume memory or file descriptors, so this enables an unlimited number of non-active shards, limited only by disk space, while giving active (`ACTIVE`) shards access to resources that they need.
 
-Deactivating unused subsets of data will help to reduce cost and improve the overall performance. We are very excited for you to [try it out](/developers/weaviate/api/rest/schema#multi-tenancy).
+Deactivating unused subsets of data will help to reduce cost and improve the overall performance. We are very excited for you to [try it out](/developers/weaviate/manage-data/multi-tenancy).
 
 > Read more:
-> - [REST API: Schema: Multi-tenancy](/developers/weaviate/api/rest/schema#multi-tenancy)
+> - [REST API: Schema: Multi-tenancy](/developers/weaviate/api/rest#tag/schema/post/schema/%7BclassName%7D/tenants)
 > - [Concepts: Data: Multi-tenancy](/developers/weaviate/concepts/data#multi-tenancy)
 
 :::note This is an experimental feature
@@ -134,7 +138,7 @@ If you are looking to perform local vectorization and don't have a GPU, this mod
 :::
 
 > Read more:
-> - [Modules: text2vec-gpt4all](/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-gpt4all)
+> - [Modules: text2vec-gpt4all](/developers/weaviate/model-providers/gpt4all/embeddings)
 
 ### `multi2vec-bind` module
 
@@ -197,10 +201,10 @@ Top retrieved image:
 
 ![Image of a bird representing the top retrieved image from a video search](./img/bird.jpg)
 
-We’ll explore the awesomeness of this new module more in a blog soon but for now, you can read more about the details of how you can use `multi2vec-bind` in the [documentation](https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/multi2vec-bind).
+We’ll explore the awesomeness of this new module more in a blog soon but for now, you can read more about the details of how you can use `multi2vec-bind` in the [documentation](/developers/weaviate/model-providers/imagebind/embeddings-multimodal).
 
 > Read more:
-> - [Modules: multi2vec-bind](/developers/weaviate/modules/retriever-vectorizer-modules/multi2vec-bind)
+> - [Modules: multi2vec-bind](/developers/weaviate/model-providers/imagebind/embeddings-multimodal)
 
 ## Performance improvements
 
@@ -311,6 +315,6 @@ As a user, you don't need to do anything to take advantage of this change. It is
 
 ## Summary
 
-That's it from us - we hope you enjoy the new features and improvements in Weaviate `1.21`. This release is already available on [WCS](https://console.weaviate.cloud/). So you can try it out yourself on a free sandbox, or by upgrading!
+That's it from us - we hope you enjoy the new features and improvements in Weaviate `1.21`. This release is already available on [WCD](https://console.weaviate.cloud/). So you can try it out yourself on a free sandbox, or by upgrading!
 
 Thanks for reading, and see you next time 👋!

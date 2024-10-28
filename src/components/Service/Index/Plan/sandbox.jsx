@@ -26,7 +26,7 @@ export default function PricingSandBox() {
           <span>24/7 support via email and phone escalation hotline</span>
         </li>
         <li>
-          <span>Enterprise or Business Critical SLAs</span>
+          <span>Professional or Business Critical SLAs</span>
         </li>
       </div>
       <div className={styles.features}>
@@ -42,10 +42,7 @@ export default function PricingSandBox() {
         <li>
           <span>Weekly office hours</span>
         </li>
-        <Link
-          className={styles.supportLink}
-          to="services/education-and-support"
-        >
+        <Link className={styles.supportLink} to="deployment/enablement">
           Learn More
         </Link>
       </div>

@@ -18,22 +18,22 @@ export default function Integrations() {
 
       <div className={styles.integrationsLogos} id={'interLogos'}>
         <div className={styles.inside}>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-openai">
+          <Link to="/developers/weaviate/model-providers/openai/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoGoogle} />
             </div>
           </Link>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-cohere">
+          <Link to="/developers/weaviate/model-providers/cohere/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoCo} />
             </div>
           </Link>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-openai">
+          <Link to="/developers/weaviate/model-providers/openai/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoAI} />
             </div>
           </Link>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-huggingface">
+          <Link to="https://weaviate.io/developers/weaviate/model-providers/cohere/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoH} />
             </div>
@@ -51,22 +51,22 @@ export default function Integrations() {
         </div>
 
         <div className={styles.inside}>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-openai">
+          <Link to="/developers/weaviate/model-providers/openai/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoGoogle} />
             </div>
           </Link>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-cohere">
+          <Link to="/developers/weaviate/model-providers/cohere/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoCo} />
             </div>
           </Link>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-openai">
+          <Link to="/developers/weaviate/model-providers/openai/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoAI} />
             </div>
           </Link>
-          <Link to="https://weaviate.io/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-huggingface">
+          <Link to="https://weaviate.io/developers/weaviate/model-providers/cohere/embeddings">
             <div className={styles.logoBg}>
               <span className={styles.logoH} />
             </div>
@@ -89,9 +89,9 @@ export default function Integrations() {
           <div className={`${styles.card} ${styles.longCard}`}>
             <div className={styles.contentDiv}>
               <h3 className={styles.cTextColor}>
-                “Weaviate's batteries include model serving and multi-tenant
-                implementation which have helped us quickly prototype and build
-                our vector search at Stack.”
+                “Weaviate's batteries-included approach, incorporating both
+                model serving and multi-tenancy, has helped us quickly prototype
+                and build our vector search at Stack.”
               </h3>
               <p>
                 Constantine Kokkinos,<br></br> Stack Overflow

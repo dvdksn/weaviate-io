@@ -8,14 +8,14 @@ image: og/docs/configuration.jpg
 
 :::info Related pages
 - [Configuration: Schema](../manage-data/collections.mdx)
-- [References: REST API: Schema](../api/rest/schema.md)
+- [References: REST API: Schema](/developers/weaviate/api/rest#tag/schema)
 - [Concepts: Data Structure](../concepts/data.md)
 :::
 
 ## Available distance metrics
 
 If not specified explicitly, the default distance metric in Weaviate is
-`cosine`. It can be [set in the vectorIndexConfig](/developers/weaviate/config-refs/schema/vector-index.md#how-to-configure-hnsw) field as part of the  schema (here's an [example adding a class to the schema](../api/rest/schema.md#create-a-class)) to any of the following types:
+`cosine`. It can be [set in the vectorIndexConfig](/developers/weaviate/config-refs/schema/vector-index.md#how-to-configure-hnsw) field as part of the schema ([example](../manage-data/collections.mdx#specify-a-distance-metric)) to any of the following types:
 
 :::tip Comparing distances
 In all cases, larger distance values indicate lower similarity. Conversely, smaller distance values indicate higher similarity.
@@ -36,7 +36,7 @@ If you're missing your favorite distance type and would like to contribute it to
 
 :::note Additional notes
 
-1. If `cosine` is chosen, all vectors are normalized to length 1 at import/read time and dot product is used to calculate the distance for computational efficiency.
+1. If `cosine` is chosen, all vectors are normalized to length 1 at read time and dot product is used to calculate the distance for computational efficiency.
 2. Dot Product on its own is a similarity metric, not a distance metric. As a result, Weaviate returns the negative dot product to stick with the intuition that a smaller value of a distance indicates a more similar result and a higher distance value indicates a less similar result.
 
 :::
@@ -45,15 +45,12 @@ If you're missing your favorite distance type and would like to contribute it to
 
 On a typical Weaviate use case the largest portion of CPU time is spent calculating vector distances. Even with an approximate nearest neighbor index - which leads to far fewer calculations - the efficiency of distance calculations has a major impact on [overall performance](/developers/weaviate/benchmarks/ann.md).
 
-You can use the following overview to find the best possible combination of distance metric and CPU architecture / instruction set.
+Weaviate uses SIMD (Single Instruction, Multiple Data) instructions for the following distance metrics and architectures. The available optimizations are resolved in the shown order (e.g. SVE -> Neon).
 
-| Distance | `linux/amd64 AVX2` | `darwin/amd64 AVX2` | `linux/amd64 AVX512` | `linux/arm64` | `darwin/arm64` |
-| --- | --- | --- | --- | --- | --- |
-| `cosine` | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/dot_amd64.s) | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/dot_amd64.s) | no SIMD | no SIMD | no SIMD |
-| `dot` | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/dot_amd64.s) | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/dot_amd64.s) | no SIMD | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/dot_arm64.s)<br/><small>From `v1.21`</small> | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/dot_arm64.s)<br/><small>From `v1.21`</small> |
-| `l2-squared` | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/l2_amd64.s) | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/l2_amd64.s) | no SIMD | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/l2_arm64.s)<br/><small>From `v1.21`</small> | [optimized](https://github.com/weaviate/weaviate/blob/master/adapters/repos/db/vector/hnsw/distancer/asm/l2_arm64.s)<br/><small>From `v1.21`</small> |
-| `hamming` | no SIMD | no SIMD | no SIMD | no SIMD | no SIMD |
-| `manhattan` | no SIMD | no SIMD | no SIMD | no SIMD | no SIMD |
+| Distance | `arm64` | `amd64` |
+| --- | --- | --- |
+| `cosine`, `dot`, `l2-squared` | SVE or Neon | Sapphire Rapids with AVX512, or Any with AVX2 |
+| `hamming`, `manhattan` | No SIMD | No SIMD |
 
 If you like dealing with Assembly programming, SIMD, and vector instruction sets we would love to receive your contribution for one of the combinations that have not yet received an SIMD-specific optimization.
 
@@ -83,6 +80,8 @@ For backward compatibility, `certainty` can still be used when the distance is
 See also [distance and certainty _additional{} properties](../api/graphql/additional-properties.md).
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

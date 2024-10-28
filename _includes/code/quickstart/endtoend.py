@@ -19,19 +19,22 @@ import weaviate
 import weaviate.classes as wvc
 import os
 # END EndToEndExample  # END InstantiationExample  # END NearTextExample
-# EndToEndExample  # InstantiationExample
+# EndToEndExample
 import requests
 import json
-# END EndToEndExample  # END InstantiationExample
+# END EndToEndExample
 
 # EndToEndExample  # InstantiationExample  # NearTextExample
 
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_CLUSTER_URL"),
-    auth_credentials=weaviate.auth.AuthApiKey(os.getenv("WCS_API_KEY")),
-    headers={
-        "X-OpenAI-Api-Key": os.environ["OPENAI_APIKEY"]  # Replace with your inference API key
-    }
+# Best practice: store your credentials in environment variables
+wcd_url = os.environ["WCD_DEMO_URL"]
+wcd_api_key = os.environ["WCD_DEMO_RO_KEY"]
+openai_api_key = os.environ["OPENAI_APIKEY"]
+
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=wcd_url,                                    # Replace with your Weaviate Cloud URL
+    auth_credentials=wvc.init.Auth.api_key(wcd_api_key),    # Replace with your Weaviate Cloud key
+    headers={"X-OpenAI-Api-Key": openai_api_key}            # Replace with appropriate header key/value pair for the required API
 )
 
 # END EndToEndExample  # END InstantiationExample  # END NearTextExample
@@ -52,7 +55,7 @@ client.collections.delete("Question")
 
 # DockerInstantiationExample # EndToEndExample  # InstantiationExample  # NearTextExample
 try:
-    pass # Replace with your code. Close client gracefully in the finally block.
+    pass  # Work with the client. Close client gracefully in the finally block.
 # END DockerInstantiationExample  # END EndToEndExample  # END InstantiationExample  # END NearTextExample
 
     # EndToEndExample
@@ -76,7 +79,7 @@ try:
         })
 
     questions = client.collections.get("Question")
-    questions.data.insert_many(question_objs)  # This uses batching under the hood
+    questions.data.insert_many(question_objs)
 
     # END EndToEndExample    # Test import
     questions_definition = questions.config.get()
@@ -98,7 +101,7 @@ try:
 
     # ===== Test query responses =====
     assert len(response.objects) == 2
-    assert response.objects[0].properties["answer"] == "DNA"
+    assert response.objects[0].properties["answer"] == "the nose or snout"
 
     # NearTextWhereExample
     questions = client.collections.get("Question")
@@ -114,7 +117,7 @@ try:
 
     # ===== Test query responses =====
     assert len(response.objects) == 2
-    assert response.objects[0].properties["category"] == "ANIMALS"
+    assert response.objects[0].properties["category"] == "SCIENCE"
 
 
     # GenerativeSearchExample

@@ -5,20 +5,6 @@ image: og/docs/configuration.jpg
 # tags: ['configuration', 'modules']
 ---
 
-
-<!-- :::caution Migrated From:
-- Mostly newly written
-- Previous `Configuration/Modules` content has been migrated to `References:Modules/index`
-::: -->
-
-:::info Related pages
-- [Concepts: Modules](../concepts/modules.md)
-- [References: Modules](../modules/index.md)
-- [References: REST API: Modules](../api/rest/modules.md)
-:::
-
-## Introduction
-
 Weaviate's functionality can be customized by using [modules](../concepts/modules.md). This page explains how to enable and configure modules.
 
 ## Instance-level configuration
@@ -31,19 +17,19 @@ At the instance (i.e. Weaviate cluster) level, you can:
 
 This can be done by setting the appropriate [environment variables](../config-refs/env-vars.md) as shown below.
 
-:::tip What about WCS?
-Weaviate Cloud Services (WCS) instances come with modules pre-configured. See [this page](../../wcs/index.mdx#configuration) for details.
+:::tip What about WCD?
+Weaviate Cloud (WCD) instances come with modules pre-configured. See [this page](../../wcs/index.mdx#configuration) for details.
 :::
 
-### Enable modules
+### Enable individual modules
 
-You can enable modules by specifying the list of modules in the `ENABLE_MODULES` variable. For example, this code enables the `text2vec-contextionary` module.
+You can enable modules by specifying the list of modules in the `ENABLE_MODULES` variable. For example, this code enables the `text2vec-transformers` module.
 
 ```yaml
 services:
   weaviate:
     environment:
-      ENABLE_MODULES: 'text2vec-contextionary'
+      ENABLE_MODULES: 'text2vec-transformers'
 ```
 
 To enable multiple modules, add them in a comma-separated list.
@@ -57,6 +43,35 @@ services:
       ENABLE_MODULES: 'text2vec-huggingface,generative-cohere,qna-openai'
 ```
 
+### Enable all API-based modules
+
+:::caution Experimental feature
+Available starting in `v1.26.0`. This is an experimental feature. Use with caution.
+:::
+
+You can enable all API-based modules by setting the `ENABLE_API_BASED_MODULES` variable to `true`. This will enable all API-based [model integrations](../model-providers/index.md), such as those for Anthropic, Cohere, OpenAI and so on by enabling the relevant modules. These modules are lightweight, so enabling them all will not significantly increase resource usage.
+
+```yaml
+services:
+  weaviate:
+    environment:
+      ENABLE_API_BASED_MODULES: 'true'
+```
+
+The list of API-based modules can be found on the [model provider integrations page](../model-providers/index.md#api-based). You can also inspect the [source code](https://github.com/weaviate/weaviate/blob/main/adapters/handlers/rest/configure_api.go) where the list is defined.
+
+This can be combined with enabling individual modules. For example, the example below enables all API-based modules, Ollama modules and the `backup-s3` module.
+
+```yaml
+services:
+  weaviate:
+    environment:
+      ENABLE_API_BASED_MODULES: 'true'
+      ENABLE_MODULES: 'text2vec-ollama,generative-ollama,backup-s3'
+```
+
+Note that enabling multiple vectorizer (e.g. `text2vec`, `multi2vec`) modules will disable the [`Explore` functionality](../api/graphql/explore.md). If you need to use `Explore`, you should only enable one vectorizer module.
+
 ### Module-specific variables
 
 You may need to specify additional environment variables to configure each module where applicable. For example, the `backup-s3` module requires the backup S3 bucket to be set via `BACKUP_S3_BUCKET`, and the `text2vec-contextionary` module requires the inference API location via `TRANSFORMERS_INFERENCE_API`.
@@ -65,10 +80,10 @@ Refer to the individual [module documentation](../modules/index.md) for more det
 
 ## Vectorizer modules
 
-The [vectorization modules](../modules/retriever-vectorizer-modules/index.md) enable Weaviate to vectorize data at import, and to perform [`near<Media>`](../search/similarity.md#an-input-medium) searches such as `nearText` or `nearImage`.
+The [vectorization integration](../model-providers/index.md) enable Weaviate to vectorize data at import, and to perform [`near<Media>`](../search/similarity.md#an-input-medium) searches such as `nearText` or `nearImage`.
 
-:::info List of available vectorizer (`xxx2vec-xxx`) modules
-Can be found [in this section](../modules/retriever-vectorizer-modules/index.md).
+:::info List of available vectorizer integrations
+Can be found [in this section](../model-providers/index.md).
 :::
 
 ### Enable vectorizer modules
@@ -97,13 +112,9 @@ services:
       DEFAULT_VECTORIZER_MODULE: text2vec-huggingface
 ```
 
-## Generative modules
+## Generative model integrations
 
-The [generative modules](../modules/reader-generator-modules/index.md) enable [generative search](../search/generative.md) functions.
-
-:::info List of available generative (`generative-xxx`) modules
-Can be found [in this section](../modules/reader-generator-modules/index.md).
-:::
+The [generative model integrations](../model-providers/index.md) enable [retrieval augmented generation](../search/generative.md) functions.
 
 ### Enable a generative module
 
@@ -120,10 +131,22 @@ services:
 Your choice of the `text2vec` module does not restrict your choice of `generative` module, or vice versa.
 :::
 
+## Tenant offload modules
+
+Tenants can be offloaded to cold storage to reduce memory and disk usage, and onloaded back when needed.
+
+See the [dedicated page on tenant offloading](./tenant-offloading.md) for more information on how to configure Weaviate for tenant offloading. For information on how to offload and onload tenants, see [How-to: manage tenant states](../manage-data/tenant-states.mdx).
+
 ## Custom modules
-See [here](../modules/other-modules/custom-modules.md) how you can create and use your own modules.
 
+See [here](../modules/custom-modules.md) how you can create and use your own modules.
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Related pages
+- [Concepts: Modules](../concepts/modules.md)
+- [References: Modules](../modules/index.md)
 
-<DocsMoreResources />
+## Questions and feedback
+
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

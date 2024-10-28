@@ -65,7 +65,7 @@ Try varying the boost factor, and the query string. What happens to the results?
 
 ### <i class="fa-solid fa-chalkboard"></i> Why tokenization matters
 
-In an earlier unit, we briefly discussed [the inverted index](../103_schema_and_imports/10_data_structure.mdx#inverted-index), and that it stores a "tokenized" index of data.
+In an earlier unit, we briefly discussed [the inverted index](../103_schema_and_imports/10_data_structure.mdx#inverted-indexes), and that it stores a "tokenized" index of data.
 
 When a BM25 query is submitted, Weaviate will search each property according to its tokenization property. For example, if a property is tokenized with the `word` tokenization option, it will tokenize the query string into its constituent, lowercase, words, and search for each word in the index. On the other hand, if a property uses a `field` tokenization, Weaviate will look for the entire query string in the index.
 
@@ -163,9 +163,11 @@ If you would like to delve into the details of the exact algorithm, you can revi
 - Consider your search use case for picking tokenization options. For example, use `word` for long text with partial matches, and `field` for short text with exact matches.
 - BM25F scoring, where 'F' stands for 'field', is used to score and rank the search results based on the fields that are searched.
 
-import { GiscusDocComment } from '/src/components/GiscusComment';
+## Questions and feedback
 
-<GiscusDocComment />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>
 
 import Quiz from '/src/components/Academy/quiz.js'
 const Bm25Question = [{

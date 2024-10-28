@@ -14,7 +14,7 @@ export const courseData = {
       "How to create a Weaviate instance, add data to it to enable semantic searching, and use AI through retrieval augmented generation."
     ],
     learningOutcomes: [
-      "Create a instance of Weaviate for you to use",
+      "Create an instance of Weaviate for you to use",
       "Produce, store and index semantic (vector) data from source text",
       "Perform semantic, keyword and hybrid searches",
       "Use AI (large language models) to augment and transform retrieved data",
@@ -87,6 +87,29 @@ export const courseData = {
     ],
     note: "Python client (v4); project-based"
   },
+  "vector_index": {
+    title: "Vector indexes",
+    courseId: "PY_230",
+    body: "Vector indexes are the key components for vector search. Learn what they are, and how to use them effectively to suit your needs.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/vector_index",
+    badgeType: "course",
+    isCourse: true,
+    units: [
+      "vindex_overview", "vindex_hnsw", "vindex_flat", "vindex_dynamic"
+    ],
+    learningGoals: [
+      "What vector index types are available, when to select each one and how to configure them."
+    ],
+    learningOutcomes: [
+      "Name available vector index types in Weaviate.",
+      "Select an appropriate index type for a given use case.",
+      "Recite relationships between HNSW parameters and search performance.",
+      "Describe how quantization affects each index type.",
+      "Create collections with your chosen vector index type and preferred parameters.",
+    ],
+    note: "Python client (v4)"
+  },
   "compression": {
     title: "Vector compression for improved efficiency",
     courseId: "PY_250",
@@ -107,28 +130,97 @@ export const courseData = {
       "Configure vector compression parameters.",
       "Select a compression algorithm for a given use case.",
     ],
-    note: "Python client (v4); project-based"
+    note: "Python client (v4)"
   },
-  "intro_weaviate_typescript": {
-    title: "Intro to Weaviate with Typescript (or JavaScript)",
-    courseId: "TS_100",
-    body: "A practical course where you can learn how to add Weaviate to a TypeScript (or JavaScript) app.",
+  "tokenization": {
+    title: "Text tokenization",
+    courseId: "PY_275",
+    body: "What happens when text is indexed, and searched, or converted into a vector? They are 'tokenized'. Learn what this is, and how you can make it work for you.",
     buttonType: "Click here",
-    buttonURL: "/developers/academy/js/intro_weaviate_typescript",
+    buttonURL: "/developers/academy/py/tokenization",
     badgeType: "course",
     isCourse: true,
     units: [
-      "intro_weaviate_typescript"
+      "tokenization_basics", "tokenization_options", "tokenization_filters", "tokenization_searches"
     ],
     learningGoals: [
-      "The basics of Weaviate, and how to integrate it to a TypeScript app."
+      "What tokenization is, and why it is required."
     ],
     learningOutcomes: [
-      "Create a cloud (WCS) instance fo Weaviate.",
-      "Gain an understanding of what a vector database is.",
-      "Define a schema (collection definition) and import data.",
-      "Perform queries on your data.",
-      "Integrate Weaviate into your TypeScript/JavaScript app.",
+      "Identify tokenized text from raw text.",
+      "Name different tokenization options in Weaviate.",
+      "Select an appropriate tokenization option for a given use case.",
+      "Name languages for which specific tokenization options are available.",
+    ],
+    note: "Python client (v4)"
+  },
+  "setup_weaviate_typescript": {
+    title: "Set up TypeScript (or Javascript) for Weaviate",
+    courseId: "TS_100",
+    body: "A quick run through of how to set up and install the Weaviate TypeScript client.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/js/set_up_typescript",
+    badgeType: "course",
+    isCourse: true,
+    units: [
+      "setup_weaviate_typescript"
+    ],
+    learningGoals: [
+      "Setup Weaviate to get started building TypeScript (or JavaScript) apps."
+    ],
+    learningOutcomes: [
+      "Install Node.js",
+      "(Optionally) Install and set up TypeScript",
+      "Install the Weaviate client",
+    ],
+    note: "TS clients"
+  },
+  "multi-tenancy": {
+    title: "Multi-tenancy",
+    courseId: "PY_280",
+    body: "Learn how to implement and manage multi-tenancy in Weaviate for efficient data isolation and resource management.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/multitenancy",
+    badgeType: "course",
+    isCourse: true,
+    units: [
+      "mt_overview", "mt_setup", "mt_tenant_data", "mt_manage_tenants"
+    ],
+    learningGoals: [
+      "Understand multi-tenancy concepts and their application in Weaviate",
+      "Learn how to set up and manage multi-tenant collections for scalable applications",
+      "Master techniques for efficient resource management in multi-tenant environments"
+    ],
+    learningOutcomes: [
+      "Explain the concept of multi-tenancy and its benefits in Weaviate",
+      "Set up a Weaviate instance and configure collections for multi-tenancy",
+      "Create, manage, and remove tenants in a multi-tenant collection",
+      "Perform data operations and queries specific to individual tenants",
+      "Implement efficient resource management using tenant activity statuses",
+      "Utilize advanced features like auto-tenant creation, activation, and offloading",
+      "Apply multi-tenancy concepts to real-world scenarios for improved scalability and data isolation"
+    ],
+    note: "Python client (v4)"
+  },
+  "starter_text_data_typescript": {
+    title: "Text data with Weaviate",
+    courseId: "TS_101T",
+    body: "Project-based learning where you'll learn how to build with Weaviate and any text data. Weaviate generates the vectors for you.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/js/starter_text_data",
+    badgeType: "course",
+    isCourse: true,
+    units: [
+      "text_setup_weaviate_ts", "text_collections_ts", "text_searches_ts", "text_rag_ts"
+    ],
+    learningGoals: [
+      "How to create a Weaviate instance, add data to it to enable semantic searching, and use AI through retrieval augmented generation."
+    ],
+    learningOutcomes: [
+      "Create an instance of Weaviate for you to use",
+      "Produce, store and index semantic (vector) data from source text",
+      "Perform semantic, keyword and hybrid searches",
+      "Use AI (large language models) to augment and transform retrieved data",
     ],
     note: "TS clients; project-based"
   },
@@ -189,6 +281,18 @@ export const courseData = {
   //     "TBC"
   //   ]
   // },
+  "kubernetes_intro": {
+    title: "Run Weaviate on Kubernetes",
+    courseId: "D100",
+    body: "Learn how to run Weaviate on a local kubernetes cluster with Minikube.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/deployment/k8s",
+    badgeType: "course",
+    isCourse: false,
+    units: [
+      "kubernetes_intro"
+    ]
+  },
   "standalone": {
     title: "Standalone units",
     courseId: "0",
@@ -198,8 +302,7 @@ export const courseData = {
     isCourse: false,
     units: [
       "which_search",
-      "chunking",
-      "kubernetes_intro",
+      "chunking"
     ]
   },
   "zero_to_mvp": {
@@ -217,7 +320,7 @@ export const courseData = {
       "How to build a Weaviate instance and populate it with vectorized data, as well as how to construct queries to efficiently retrieve relevant data."
     ],
     learningOutcomes: [
-      "Use Weaviate Cloud Services to create an instance of Weaviate",
+      "Use Weaviate Cloud to create an instance of Weaviate",
       "Use appropriate query types and syntax to retrieve desired objects",
       "Outline what vector search is and how it works",
       "Demonstrate how to efficiently populate an Weaviate instance with data",

@@ -14,11 +14,41 @@ export const unitData = {
       "Connect to the Weaviate instance using the Python client and communicate with it."
     ]
   },
+  "text_setup_weaviate_ts": {
+    title: "Set up Weaviate",
+    body: "Set up a Weaviate instance and connect to it.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/js/starter_text_data/setup_weaviate",
+    badgeType: "practical",
+    learningGoals: [
+      "Set up a Weaviate instance and connect to it with the JavaScript/Typescript client."
+    ],
+    learningOutcomes: [
+      "Install the latest Weaviate JavaScript/Typescript client.",
+      "Create a Weaviate instance.",
+      "Connect to the Weaviate instance using the JavaScript/Typescript client and communicate with it."
+    ]
+  },
   "text_collections": {
     title: "Populate the database",
     body: "Create a collection and import data, and have Weaviate create vectors for you.",
     buttonType: "Click here",
     buttonURL: "/developers/academy/py/starter_text_data/text_collections",
+    badgeType: "practical",
+    learningGoals: [
+      "Configure and create a collection then import text data using batch imports."
+    ],
+    learningOutcomes: [
+      "Configure a collection with typical settings and vectorizer set.",
+      "Create a collection and work with a collection object.",
+      "Import data using batch imports."
+    ]
+  },
+  "text_collections_ts": {
+    title: "Populate the database",
+    body: "Create a collection and import data, and have Weaviate create vectors for you.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/js/starter_text_data/text_collections",
     badgeType: "practical",
     learningGoals: [
       "Configure and create a collection then import text data using batch imports."
@@ -45,11 +75,42 @@ export const unitData = {
       "Perform a hybrid search.",
     ]
   },
+  "text_searches_ts": {
+    title: "Perform searches",
+    body: "Learn how to use search functions in Weaviate.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/js/starter_text_data/text_searches",
+    badgeType: "practical",
+    learningGoals: [
+      "Perform semantic, keyword and hybrid searches."
+    ],
+    learningOutcomes: [
+      "Describe differences between semantic, keyword and hybrid searches at a high level.",
+      "Perform a semantic search with near text functions.",
+      "Perform a keyword search.",
+      "Perform a hybrid search.",
+    ]
+  },
   "text_rag": {
     title: "LLMs and Weaviate (RAG)",
     body: "Use large language models to augment and transform retrieved data.",
     buttonType: "Click here",
     buttonURL: "/developers/academy/py/starter_text_data/text_rag",
+    badgeType: "practical",
+    learningGoals: [
+      "Use AI (large language models) to augment and transform retrieved data."
+    ],
+    learningOutcomes: [
+      "Describe what RAG is and how it works at a high level.",
+      "Perform RAG on individual objects.",
+      "Perform RAG on the entire set of returned objects.",
+    ]
+  },
+  "text_rag_ts": {
+    title: "LLMs and Weaviate (RAG)",
+    body: "Use large language models to augment and transform retrieved data.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/js/starter_text_data/text_rag",
     badgeType: "practical",
     learningGoals: [
       "Use AI (large language models) to augment and transform retrieved data."
@@ -251,27 +312,193 @@ export const unitData = {
       "Make an informed choice on which compression algorithm to use for a given use case.",
     ]
   },
-  // multi_tenancy_intro: {
-  //   title: "Introduction to multi-tenancy",
-  //   body: "Multi-tenancy allows you to scale Weaviate for efficient production use with many end users.",
-  //   buttonType: "TBD",
-  //   // buttonURL: "/developers/academy/py/standalone/multi_tenancy",
-  //   badgeType: "practical",
-  //   learningGoals: [
-  //     "What multi-tenancy is and when to use it",
-  //     "How to enable it and create tenants",
-  //     "Using Weaviate with multi-tenancy",
-  //   ],
-  //   learningOutcomes: [
-  //     "Describe what multi-tenancy is",
-  //     "Appropriately select when to use multi-tenancy",
-  //     "Create tenants and ingest data with multi-tenancy enabled",
-  //     "Perform operations at tenant level",
-  //   ],
-  //   owner: "jp",
-  //   reviewer: "jp"
-  // },
-
+  "vindex_overview": {
+    title: "Vector index: Overview",
+    body: "What is a vector index, and why is it important?",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/vector_index/overview",
+    badgeType: "practical",
+    learningGoals: [
+      "Learn what a vector index is and how it affects your vector searches."
+    ],
+    learningOutcomes: [
+      "Describe what a vector index is and what it does.",
+      "Recite different types of vector indexes in Weaviate.",
+    ]
+  },
+  "vindex_hnsw": {
+    title: "HNSW index in depth",
+    body: "Learn about the HNSW index type, and how to tune it for your use case.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/vector_index/hnsw",
+    badgeType: "practical",
+    learningGoals: [
+      "How the HNSW index works and how to tune it for your use case."
+    ],
+    learningOutcomes: [
+      "Describe how an HNSW index works and its key attributes.",
+      "Configure Weaviate with an HNSW index, and describe its parameters.",
+    ]
+  },
+  "vindex_flat": {
+    title: "Flat index in depth",
+    body: "Learn about the flat index type, and how to tune it for your use case.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/vector_index/flat",
+    badgeType: "practical",
+    learningGoals: [
+      "How the flat index works and how to tune it for your use case."
+    ],
+    learningOutcomes: [
+      "Describe how a flat index works and its key attributes.",
+      "Configure Weaviate with a flat index, and describe its parameters.",
+    ]
+  },
+  "vindex_dynamic": {
+    title: "Dynamic index in depth",
+    body: "Learn about the dynamic index type, and how to tune it for your use case.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/vector_index/dynamic",
+    badgeType: "practical",
+    learningGoals: [
+      "How the dynamic index works and how to tune it for your use case."
+    ],
+    learningOutcomes: [
+      "Describe how a dynamic index works and its key attributes.",
+      "Configure Weaviate with a dynamic index, and describe its parameters.",
+    ]
+  },
+  "tokenization_basics": {
+    title: "Overview of tokenization",
+    body: "What is tokenization, and why is it important?",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/tokenization/basics",
+    badgeType: "theory",
+    learningGoals: [
+      "What tokenization is and its impact."
+    ],
+    learningOutcomes: [
+      "Describe what tokenization is.",
+      "Differentiate the tokenizer's role in vectorization and keyword-based operations.",
+    ]
+  },
+  "tokenization_options": {
+    title: "Available tokenization options",
+    body: "What tokenization options are available in Weaviate?",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/tokenization/options",
+    badgeType: "theory",
+    learningGoals: [
+      "Review the available tokenization options in Weaviate."
+    ],
+    learningOutcomes: [
+      "Describe different tokenization options available in Weaviate.",
+      "Identify the best tokenization option for a given use case.",
+      "Identify languages for which specific tokenization options are available.",
+    ]
+  },
+  "tokenization_filters": {
+    title: "Tokenization and filters",
+    body: "See how tokenization impacts filters.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/tokenization/filters",
+    badgeType: "practical",
+    learningGoals: [
+      "The impact of tokenization on filters."
+    ],
+    learningOutcomes: [
+      "Describe the ways in which tokenization can affect filters.",
+      "Implement an appropriate tokenization option in Weaviate for a given use case.",
+    ]
+  },
+  "tokenization_searches": {
+    title: "Tokenization and searches",
+    body: "See how tokenization impacts searches.",
+    buttonType: "Click here",
+    buttonURL: "/developers/academy/py/tokenization/searches",
+    badgeType: "practical",
+    learningGoals: [
+      "The impact of tokenization on query results."
+    ],
+    learningOutcomes: [
+      "Describe the ways in which tokenization can affect keyword search results.",
+      "Implement an appropriate tokenization option in Weaviate for a given use case.",
+    ]
+  },
+  mt_overview: {
+    "title": "An overview of multi-tenancy",
+    "body": "Learn what multi-tenancy is and how it helps to build scalable production applications.",
+    "buttonType": "Click here",
+    "buttonURL": "/developers/academy/py/multitenancy/overview",
+    "badgeType": "theory",
+    "learningGoals": [
+      "Understand multi-tenancy in Weaviate and its benefits",
+      "Identify use cases for multi-tenancy in production applications"
+    ],
+    "learningOutcomes": [
+      "Describe what multi-tenancy is in the context of Weaviate",
+      "Explain the benefits of multi-tenancy for resource management and scalability",
+      "Identify scenarios where multi-tenancy is advantageous",
+      "Understand the concept of tenant isolation within a shared collection"
+    ],
+    owner: "jp",
+    reviewer: "jp"
+  },
+  mt_setup: {
+    "title": "Multi-tenant setup",
+    "body": "Set up a Weaviate instance and configure collections for multi-tenant usage.",
+    "buttonType": "Click here",
+    "buttonURL": "/developers/academy/py/multitenancy/setup",
+    "badgeType": "practical",
+    "learningGoals": [
+      "Learn how to set up a Weaviate instance and configure collections for multi-tenant usage."
+    ],
+    "learningOutcomes": [
+      "Configure a Weaviate instance for multi-tenancy",
+      "Create a multi-tenant collection with appropriate settings",
+      "Understand and configure auto-tenant creation and activation",
+      "Set up dynamic indexing for efficient resource usage across tenants"
+    ],
+    owner: "jp",
+    reviewer: "jp"
+  },
+  mt_tenant_data: {
+    "title": "Work with tenants and data",
+    "body": "Learn how to manage tenants and their data in a multi-tenant collection.",
+    "buttonType": "Click here",
+    "buttonURL": "/developers/academy/py/multitenancy/tenant_data",
+    "badgeType": "practical",
+    "learningGoals": [
+      "Understand how to create and manage tenants as well their data in a multi-tenant environment"
+    ],
+    "learningOutcomes": [
+      "Create single and multiple tenants",
+      "Insert and batch import data for specific tenants",
+      "Perform queries on tenant-specific data",
+      "Understand and utilize auto-tenant creation"
+    ],
+    "owner": "jp",
+    "reviewer": "jp"
+  },
+  mt_manage_tenants: {
+    "title": "Manage tenant states and resources",
+    "body": "Learn how to efficiently manage tenant states and optimize resource usage.",
+    "buttonType": "Click here",
+    "buttonURL": "/developers/academy/py/multitenancy/manage_tenants",
+    "badgeType": "practical",
+    "learningGoals": [
+      "Understand tenant activity statuses and their implications, and learn how to manage tenant states for optimal resource usage"
+    ],
+    "learningOutcomes": [
+      "Describe the different tenant activity statuses (ACTIVE, INACTIVE, OFFLOADED)",
+      "Update tenant states individually and in bulk",
+      "Implement tenant offloading to cold storage",
+      "Utilize auto-activation for efficient resource management",
+      "Remove tenants and their associated data"
+    ],
+    "owner": "jp",
+    "reviewer": "jp"
+  },
   hello_weaviate: {
     title: "Hello, Weaviate",
     body: "Start here: Learn what Weaviate is, and about its key capabilities and features, as well as about vectors that power Weaviate.",
@@ -280,14 +507,14 @@ export const unitData = {
     badgeType: "mixed",
     learningGoals: [
       "What Weaviate is, and what it does.",
-      "How to create your own Weaviate instance on WCS.",
+      "How to create your own Weaviate instance on WCD.",
       "Weaviate clients and how to install them.",
       "Hands-on experience with Weaviate.",
     ],
     learningOutcomes: [
       "Broadly describe what Weaviate is.",
       "Outline what vector search is.",
-      "Create a Weaviate instance on WCS.",
+      "Create a Weaviate instance on WCD.",
       "Install your preferred Weaviate client.",
       "Describe some of Weaviate's capabilities.",
     ],
@@ -370,7 +597,7 @@ export const unitData = {
     body: "Weaviate offers many search types (vector, keyword and hybrid), and options. Let's discuss some good, baseline search strategies.",
     buttonType: "Click here",
     badgeType: "mixed",
-    buttonURL: "/developers/academy/py/building_with_weaviate/which_search",
+    buttonURL: "/developers/academy/py/standalone/which_search",
     learningGoals: [
       "Impact of search type on search quality.",
       "Impact of search type on search performance.",
@@ -612,7 +839,7 @@ export const unitData = {
   //   learningOutcomes: [
   //     "Describe the principles behind token-based security such as OIDC / OAuth.",
   //     "Differentiate between an ID token and access token",
-  //     "Implement OIDC-based authentication with Weaviate using Weaviate Cloud Services as the identity provider.",
+  //     "Implement OIDC-based authentication with Weaviate using Weaviate Cloud as the identity provider.",
   //     "Implement authorization with Weaviate based on OIDC authentication."
   //   ],
   //   owner: "jp",
@@ -717,12 +944,12 @@ export const unitData = {
   kubernetes_intro: {
     title: "Weaviate with Kubernetes - An introduction",
     body: "What is Kubernetes, and how do you configure and run Weaviate on it?.",
-    buttonType: "TBD",
+    buttonType: "Click here",
     badgeType: "practical",
     learningGoals: [
       "What Kubernetes is, and why it is used.",
       "How to set up a local Kubernetes cluster.",
-      "Run a multi-node Weaviate instance on the local Kubernetes cluster.",
+      "Run a Weaviate instance on the local Kubernetes cluster.",
       "How to configure Weaviate running on Kubernetes."
     ],
     learningOutcomes: [
@@ -771,7 +998,7 @@ export const unitData = {
       "The basics of Weaviate, and how to integrate it to a TypeScript (or JavaScript) app."
     ],
     learningOutcomes: [
-      "Create a cloud (WCS) instance fo Weaviate.",
+      "Create a cloud (WCD) instance fo Weaviate.",
       "Gain an understanding of what a vector database is.",
       "Define a schema (collection definition) and import data.",
       "Perform queries on your data.",

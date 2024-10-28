@@ -2,10 +2,11 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import FilteredTextBlock from '@site/src/components/Documentation/FilteredTextBlock';
 
-import PyCode from '!!raw-loader!/_includes/code/rest.schema.py';
+import PyCode from '!!raw-loader!/_includes/code/howto/manage-data.collections.py';
+import JavaCode from '!!raw-loader!/_includes/code/howto/java/src/test/java/io/weaviate/docs/manage-data.classes.java';
 
 <Tabs groupId="languages">
-<TabItem value="py" label="Python (v4)">
+<TabItem value="py" label="Python Client v4">
   <FilteredTextBlock
     text={PyCode}
     startMarker="START AddProperty"
@@ -14,13 +15,9 @@ import PyCode from '!!raw-loader!/_includes/code/rest.schema.py';
   />
 </TabItem>
 
-<TabItem value="py3" label="Python (v3)">
+<TabItem value="py3" label="Python Client v3">
 
 ```python
-import weaviate
-
-client = weaviate.Client("http://localhost:8080")
-
 add_prop = {
   "dataType": [
       "boolean"
@@ -32,16 +29,23 @@ client.schema.property.create("Article", add_prop)
 ```
 
 </TabItem>
-<TabItem value="js" label="JavaScript/TypeScript">
+<TabItem value="js" label="JS/TS Client v3">
 
 ```js
-import weaviate from 'weaviate-ts-client';
+let articles = client.collections.get('Article')
 
-const client = weaviate.client({
-  scheme: 'http',
-  host: 'localhost:8080',
-});
+// highlight-start
+articles.config.addProperty({
+  name: 'onHomepage',
+  dataType: 'boolean'
+})
+// highlight-end
+```
 
+</TabItem>
+<TabItem value="js2" label="JS/TS Client v2">
+
+```js
 const className = 'Article';
 const prop = {
   dataType: ['boolean'],
@@ -96,57 +100,14 @@ func main() {
 ```
 
 </TabItem>
-<TabItem value="java" label="Java">
 
-```java
-package io.weaviate;
+ <TabItem value="java" label="Java">
+     <FilteredTextBlock
+       text={JavaCode}
+       startMarker="// AddProperty START"
+       endMarker="// AddProperty END"
+       language="java"
+     />
+  </TabItem>
 
-import java.util.Arrays;
-import io.weaviate.client.Config;
-import io.weaviate.client.WeaviateClient;
-import io.weaviate.client.base.Result;
-import io.weaviate.client.v1.schema.model.DataType;
-import io.weaviate.client.v1.schema.model.Property;
-
-public class App {
-  public static void main(String[] args) {
-    Config config = new Config("http", "localhost:8080");
-    WeaviateClient client = new WeaviateClient(config);
-
-    Property property = Property.builder()
-      .dataType(Arrays.asList(DataType.BOOLEAN))
-      .name("onHomepage")
-      .build();
-
-    Result<Boolean> result = client.schema().propertyCreator()
-      .withClassName("Article")
-      .withProperty(property)
-      .run();
-
-    if (result.hasErrors()) {
-      System.out.println(result.getError());
-      return;
-    }
-    System.out.println(result.getResult());
-  }
-}
-```
-
-</TabItem>
-<TabItem value="curl" label="Curl">
-
-```bash
-curl \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{
-        "dataType": [
-          "boolean"
-        ],
-        "name": "onHomepage"
-    }' \
-    http://localhost:8080/v1/schema/Article/properties
-```
-
-</TabItem>
 </Tabs>

@@ -18,28 +18,24 @@ This tutorial will guide you through the process of defining a schema for your d
 
 ## Schema: An Introduction
 
-### What is a schema?
-
 The database schema defines how data is stored, organized and retrieved in Weaviate.
 
-A schema **must** be defined before data can be imported. We generally recommend defining as much of the schema manually, although Weaviate can also infer the schema during import if [auto-schema feature](../config-refs/schema/index.md#auto-schema) is enabled.
+Define a collection before importing data. Weaviate cannot import data if the collection is undefined. If [auto-schema](../config-refs/schema/index.md#auto-schema) is enabled, Weaviate can infer missing elements and add them to the collection definition. However, it is a best practice to manually define as much of the schema as possible since manual definition gives you the most control.
 
 Let's begin with a simple example before diving into the details.
 
 ### Basic schema creation
 
-This example will create a simple collection called **Question**, with three properties (`answer`, `question`, and `category`), the `text2vec-openai` vectorizer and the `generative-cohere` module for RAG. It then retrieves the schema and displays it.
+This example creates a collection called `Question`. The collection has three properties, `answer`, `question`, and `category`. The definition specifies the `text2vec-openai` vectorizer and the `generative-cohere` module for RAG.
 
 import CodeCreateSchema from '/_includes/code/tutorial.schema.create.mdx';
 
-<CreateSchema />
+<CodeCreateSchema />
 
-The returned configuration should look something like this:
+The returned configuration looks similar to this:
 
 <details>
   <summary>See the returned schema</summary>
-
-Note: results will vary depending on your client library.
 
 ```json
 {
@@ -127,7 +123,7 @@ Note: results will vary depending on your client library.
             "vectorIndexConfig": {
                 "skip": false,
                 "cleanupIntervalSeconds": 300,
-                "maxConnections": 64,
+                "maxConnections": 32,
                 "efConstruction": 128,
                 "ef": -1,
                 "dynamicEfMin": 100,
@@ -187,7 +183,7 @@ This is also where you would specify cross-references, which are a special type 
 
 Cross-references can be very useful for creating relationships between objects. For example, you might have a `Movie` collection with a `withActor` cross-reference property that points to the `Actor` collection. This will allow you to retrieve relevant actors for each movie.
 
-However, please be aware that using cross-references can be costly in terms of performance, so we recommend using them sparingly. Additionally, cross-reference properties do not affect the object's vector. So if you want the related properties to be considered in a vector search, they should be included in the object's vectorized properties.
+However, cross-references can be costly in terms of performance. Use them sparingly. Additionally, cross-reference properties do not affect the object's vector. So if you want the related properties to be considered in a vector search, they should be included in the object's vectorized properties.
 
 You can find examples of how to define and use cross-references [here](../manage-data/cross-references.mdx).
 
@@ -197,7 +193,7 @@ Each collection can be configured with a vectorizer and a generative module. The
 
 These settings are currently immutable once the collection is created. Accordingly, you should choose the vectorizer and generative module carefully.
 
-If you are not sure where to start, modules that integrate with popular API-based model providers such as Cohere or OpenAI are good starting points. You can find a list of available [vectorizer modules here](../modules/retriever-vectorizer-modules/index.md) and [generative modules here](../modules/reader-generator-modules/index.md).
+If you are not sure where to start, modules that integrate with popular API-based model providers such as Cohere or OpenAI are good starting points. You can find a [list of available model integrations here](../model-providers/index.md).
 
 ### Multi-tenancy settings
 
@@ -211,7 +207,9 @@ import SchemaWithMT from '/_includes/code/tutorial.schema.multi-tenancy.mdx';
 
 ### Index settings
 
-Weaviate uses two types of indexes: vector indexes and inverted indexes. Vector indexes are used to store and organize vectors for fast vector similarity-based searches, and inverted indexes are used to store data for fast filtering and keyword searches.
+Weaviate uses two types of indexes: [vector indexes](../concepts/vector-index.md) and [inverted indexes](../concepts/indexing.md#inverted-indexes). Vector indexes are used to store and organize vectors for fast vector similarity-based searches. Inverted indexes are used to store data for fast filtering and keyword searches.
+
+The default vector index type is [HNSW](../concepts/vector-index.md#hierarchical-navigable-small-world-hnsw-index). The other options are [flat](../concepts/vector-index.md#flat-index), which is suitable for small collections, such as those in a multi-tenancy collection, or [dynamic](../concepts/vector-index.md#dynamic-index), which starts as a flat index before switching to an HNSW index if its size grows beyond a predetermined threshold.
 
 import SchemaWithIndexSettings from '/_includes/code/tutorial.schema.index-settings.mdx';
 
@@ -243,9 +241,11 @@ The following resources include more detailed information on schema settings and
 
 - [Schema - Reference: Configuration](../config-refs/schema/index.md): A reference of all available schema settings.
 - [Collections - How-to: manage data](../manage-data/collections.mdx): Code examples for creating and managing collections, including how to configure various settings using client libraries.
-- [Schema - Reference: REST](../api/rest/schema.md): A reference of all available schema settings for the REST API.
+- [Schema - Reference: REST](/developers/weaviate/api/rest#tag/schema): A reference of all available schema settings for the REST API.
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

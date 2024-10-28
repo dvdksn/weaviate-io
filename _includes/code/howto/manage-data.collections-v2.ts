@@ -41,9 +41,6 @@ let result = await client.schema
   .classCreator()
   .withClass(emptyClassDefinition)
   .do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END BasicCreateCollection
 
 // Test
@@ -77,13 +74,10 @@ const classWithProps = {
 
 // Add the class to the schema
 result = await client.schema.classCreator().withClass(classWithProps).do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END CreateCollectionWithProperties
 
 // ================================
-// ===== READ A CLASS =====
+// ===== READ A COLLECTION =====
 // ================================
 
 // START ReadOneCollection
@@ -102,6 +96,33 @@ console.log(JSON.stringify(classDefinition, null, 2));
 // START BasicNamedVectors
 const classWithNamedVectors = {
   class: 'ArticleNV',
+  // highlight-start
+  vectorConfig: {
+    // Set a named vector
+    title: {
+      vectorizer: {
+        'text2vec-cohere': {
+          properties: ['title'], // Set the source property(ies)
+        },
+      },
+    },
+    // Set another named vector
+    body: {
+      vectorizer: {
+        'text2vec-openai': {
+          properties: ['body'], // Set the source property(ies)
+        },
+      },
+    },
+    title_country: {
+      vectorizer: {
+        'text2vec-openai': {
+          properties: ['title','country'], // Set the source property(ies)
+        },
+      },
+    },
+  },
+  // highlight-end
   properties: [
     {
       name: 'title',
@@ -111,29 +132,11 @@ const classWithNamedVectors = {
       name: 'body',
       dataType: ['text'],
     },
+    {
+      name: 'country',
+      dataType: ['text'],
+    },
   ],
-  // highlight-start
-  vectorConfig: {
-    // Set a named vector
-    title: {
-      vectorIndexType: 'hnsw', // Set the index type
-      vectorizer: {
-        'text2vec-cohere': {
-          properties: ['title'], // Set the source property(ies)
-        },
-      },
-    },
-    // Set another named vector
-    body: {
-      vectorIndexType: 'hnsw', // Set the index type
-      vectorizer: {
-        'text2vec-openai': {
-          properties: ['body'], // Set the source property(ies)
-        },
-      },
-    },
-  },
-  // highlight-end
 };
 
 // Add the class to the schema
@@ -141,9 +144,6 @@ result = await client.schema
   .classCreator()
   .withClass(classWithNamedVectors)
   .do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END BasicNamedVectors
 
 // Test
@@ -183,9 +183,6 @@ const classWithVectorizer = {
 
 // Add the class to the schema
 result = await client.schema.classCreator().withClass(classWithVectorizer).do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END Vectorizer
 
 // Test
@@ -196,10 +193,10 @@ assert.equal(result['properties'].length, 1); // no 'body' from the previous exa
 await client.schema.classDeleter().withClassName(className).do();
 
 // ===========================
-// ===== SetVectorIndex =====
+// ===== SetVectorIndexType =====
 // ===========================
 
-// START SetVectorIndex
+// START SetVectorIndexType
 const classWithIndexType = {
   class: 'Article',
   properties: [
@@ -210,7 +207,7 @@ const classWithIndexType = {
   ],
   vectorizer: 'text2vec-openai', // this could be any vectorizer
   // highlight-start
-  vectorIndexType: 'flat', // or `hnsw`
+  vectorIndexType: 'flat', // or 'hnsw', or 'dynamic'
   vectorIndexConfig: {
     bq: {
       enabled: true, // Enable BQ compression. Default: False
@@ -224,10 +221,7 @@ const classWithIndexType = {
 
 // Add the class to the schema
 result = await client.schema.classCreator().withClass(classWithIndexType).do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
-// END SetVectorIndex
+// END SetVectorIndexType
 
 // Test
 assert.equal(result['vectorizer'], 'text2vec-openai');
@@ -236,6 +230,41 @@ assert.equal(result['properties'].length, 1); // no 'body' from the previous exa
 
 // Delete the class to recreate it
 await client.schema.classDeleter().withClassName(className).do();
+
+
+// ===========================
+// ===== SetVectorIndexParams =====
+// ===========================
+
+// START SetVectorIndexParams
+const classWithIndexParams = {
+  class: 'Article',
+  // Additional configuration not shown
+  vectorIndexType: 'flat', // or `hnsw`
+  // highlight-start
+  vectorIndexConfig: {
+    bq: {
+      enabled: true, // Enable BQ compression. Default: False
+      rescoreLimit: 200, // The minimum number of candidates to fetch before rescoring. Default: -1 (No limit)
+      cache: true, // Enable use of vector cache. Default: False
+    },
+    vectorCacheMaxObjects: 100000, // Cache size if `cache` enabled. Default: 1000000000000
+  },
+  // highlight-end
+};
+
+// Add the class to the schema
+result = await client.schema.classCreator().withClass(classWithIndexType).do();
+// END SetVectorIndexParams
+
+// Test
+assert.equal(result['vectorizer'], 'text2vec-openai');
+assert.equal(result['vectorIndexType'], 'flat');
+assert.equal(result['properties'].length, 1); // no 'body' from the previous example
+
+// Delete the class to recreate it
+await client.schema.classDeleter().withClassName(className).do();
+
 
 // ===========================
 // ===== MODULE SETTINGS =====
@@ -267,9 +296,6 @@ result = await client.schema
   .classCreator()
   .withClass(classWithModuleSettings)
   .do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END ModuleSettings
 
 // Test
@@ -325,9 +351,6 @@ result = await client.schema
   .classCreator()
   .withClass(classWithPropModuleSettings)
   .do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END PropModuleSettings
 
 // Test
@@ -358,9 +381,6 @@ const classWithDistance = {
 
 // Add the class to the schema
 result = await client.schema.classCreator().withClass(classWithDistance).do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END DistanceMetric
 
 // Test
@@ -368,6 +388,99 @@ assert.equal(result.vectorIndexConfig.distance, 'cosine');
 
 // Delete the class to recreate it
 await client.schema.classDeleter().withClassName(className).do();
+
+// ====================================
+// ===== CUSTOM INVERTED INDEX SETTINGS =====
+// ====================================
+
+// START SetInvertedIndexParams
+const classWithInvIndexSettings = {
+  class: 'Article',
+  vectorizer: 'text2vec-huggingface', // this could be any vectorizer
+  properties: [
+    {
+      name: 'title',
+      dataType: ['text'],
+      // highlight-start
+      indexFilterable: true,
+      indexSearchable: true,
+      // highlight-end
+      moduleConfig: {
+        'text2vec-huggingface': {},
+      },
+    },
+    {
+      name: 'chunk',
+      dataType: ['int'],
+      // highlight-start
+      indexRangeFilters: true,
+      // highlight-end
+    },
+  ],
+  // highlight-start
+  invertedIndexConfig: {
+    bm25: {
+        b: 0.7,
+        k1: 1.25
+    },
+    indexTimestamps: true,
+    indexNullState: true,
+    indexPropertyLength: true
+  }
+  // highlight-end
+};
+
+// Add the class to the schema
+result = await client.schema
+  .classCreator()
+  .withClass(classWithPropModuleSettings)
+  .do();
+// END SetInvertedIndexParams
+
+// Test
+assert.equal(
+  result.properties[0].invertedIndexConfig.bm25.b,
+  0.7
+);
+assert.equal(
+  result.properties[0].invertedIndexConfig.bm25.k1,
+  1.25
+);
+
+// Delete the class to recreate it
+await client.schema.classDeleter().withClassName(className).do();
+
+// ===============================================
+// ===== CREATE A COLLECTION WITH A RERANKER MODULE =====
+// ===============================================
+
+// START SetReranker
+const classWithReranker = {
+  class: 'Article',
+  properties: [
+    {
+      name: 'title',
+      dataType: ['text'],
+    },
+  ],
+  vectorizer: 'text2vec-openai', // this could be any vectorizer
+  // highlight-start
+  moduleConfig: {
+    'reranker-cohere': {}, // set your reranker module
+  },
+  // highlight-end
+};
+
+// Add the class to the schema
+result = await client.schema.classCreator().withClass(classWithReranker).do();
+// END SetReranker
+
+// Test
+Object.keys(result['moduleConfig']).includes('reranker-cohere');
+
+// Delete the class to recreate it
+await client.schema.classDeleter().withClassName(className).do();
+
 
 // ===============================================
 // ===== CREATE A COLLECTION WITH A GENERATIVE MODULE =====
@@ -392,10 +505,40 @@ const classWithGenerative = {
 
 // Add the class to the schema
 result = await client.schema.classCreator().withClass(classWithGenerative).do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END SetGenerative
+
+// Test
+Object.keys(result['moduleConfig']).includes('generative-openai');
+
+// Delete the class to recreate it
+await client.schema.classDeleter().withClassName(className).do();
+
+// =======================================================================
+// ===== CREATE A COLLECTION WITH A GENERATIVE MODULE AND MODEL NAME =====
+// =======================================================================
+
+// START SetGenModel
+const classWithGenerativeModel = {
+  class: 'Article',
+  properties: [
+    {
+      name: 'title',
+      dataType: ['text'],
+    },
+  ],
+  vectorizer: 'text2vec-openai', // this could be any vectorizer
+  moduleConfig: {
+    // highlight-start
+    'generative-openai': {
+      'model': 'gpt-4' // set your generative model
+    },
+    // highlight-end
+  },
+};
+
+// Add the class to the schema
+result = await client.schema.classCreator().withClass(classWithGenerativeModel).do();
+// END SetGenModel
 
 // Test
 Object.keys(result['moduleConfig']).includes('generative-openai');
@@ -422,13 +565,36 @@ result = await client.schema
   .classCreator()
   .withClass(classWithReplication)
   .do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END ReplicationSettings
 
 // Test
 assert.equal(result.replicationConfig.factor, 3);
+
+
+// =======================
+// ===== AsyncRepair =====
+// =======================
+
+// START AsyncRepair
+const classWithReplication = {
+ class: 'Article',
+ // highlight-start
+ replicationConfig: {
+   factor: 3,
+   asyncEnabled: true,
+ },
+ // highlight-end
+};
+
+// Add the class to the schema
+result = await client.schema
+ .classCreator()
+ .withClass(classWithReplication)
+ .do();
+// END AsyncRepair
+
+// TODO NEEDS TEST
+
 
 // ====================
 // ===== SHARDING =====
@@ -453,9 +619,6 @@ const classWithSharding = {
 
 // Add the class to the schema
 result = await client.schema.classCreator().withClass(classWithSharding).do();
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(result, null, 2));
 // END ShardingSettings
 
 // Test
@@ -496,9 +659,6 @@ const resultProp = await client.schema
   .withClassName('Article')
   .withProperty(prop)
   .do();
-
-// The returned value is full property definition
-console.log(JSON.stringify(resultProp, null, 2));
 // END AddProp
 
 // Test
@@ -517,9 +677,9 @@ assert.equal(resultProp.name, 'body');
 // ================================
 
 // START ReadAllCollections
-let allClassDefinitions = await client.schema.getter().do();
+let allCollections = await client.schema.getter().do();
 
-console.log(JSON.stringify(allClassDefinitions, null, 2));
+console.log(JSON.stringify(allCollections, null, 2));
 // END ReadAllCollections
 
 // ================================

@@ -5,20 +5,25 @@ import assert from 'assert';
 // ================================
 // ===== INSTANTIATION-COMMON =====
 // ================================
-import weaviate from 'weaviate-client';
+import weaviate, { WeaviateClient, vectorIndex } from 'weaviate-client';
+import { vectorizer, reranker, generative, dataType, tokenization, configure, reconfigure, vectorDistances } from 'weaviate-client';
 
-const client = await weaviate.connectToWCS(
-  'https://hha2nvjsruetknc5vxwrwa.c0.europe-west2.gcp.weaviate.cloud/',
+const client: WeaviateClient = await weaviate.connectToWeaviateCloud(
+  process.env.WCD_URL,
  {
-   authCredentials: new weaviate.ApiKey('nMZuw1z1zVtnjkXXOMGx9Ows7YWGsakItdus'),
+   authCredentials: new weaviate.ApiKey(process.env.WCD_API_KEY),
    headers: {
-     'X-OpenAI-Api-Key': process.env.OPENAI_API_KEY || '',  // Replace with your inference API key
+     'X-OpenAI-Api-Key': process.env.OPENAI_APIKEY,  // Replace with your inference API key
    }
- } 
+ }
 )
 
-// START BasicCreateCollection  // START ReadOneCollection  // START UpdateCollection
-// END BasicCreateCollection  // END ReadOneCollection  // END UpdateCollection
+const collectionName = 'Article'
+let result
+
+// START UpdateCollection // START ReadOneCollection // START ModifyParam
+let articles = client.collections.get('Article')
+// END UpdateCollection // END ReadOneCollection // END ModifyParam
 
 // ================================
 // ===== CREATE A CLASS =====
@@ -26,114 +31,122 @@ const client = await weaviate.connectToWCS(
 
 // Clean slate
 try {
-  await client.schema.classDeleter().withClassName(className).do();
+  await client.collections.delete(collectionName)
+
 } catch (e) {
   // ignore error if class doesn't exist
 }
-
+{
 // START BasicCreateCollection
 const newCollection = await client.collections.create({
-      name: 'Article'
-  })
+  name: 'Article'
+})
 
 // The returned value is the full collection definition, showing all defaults
 console.log(JSON.stringify(newCollection, null, 2));
 // END BasicCreateCollection
 
 // Test
-console.assert('invertedIndexConfig' in result);
+// (client.collections.get('ArticleNV').config.get()).vectorizer.body.vectorizer
+result = client.collections.get(collectionName).config.get()
 
+console.assert('replication' in result);
+}
 // ====================================
 // ===== CREATE A CLASS WITH PROPERTIES
 // ====================================
 
 // Clean slate
 try {
-  await client.schema.classDeleter().withClassName(className).do();
+  await client.collections.delete(collectionName)
 } catch (e) {
   // ignore error if class doesn't exist
 }
 
+/*
 // START CreateCollectionWithProperties
-const newCollection = await client.collections.create({
+import { dataType } from 'weaviate-client';
+
+// END CreateCollectionWithProperties
+*/
+
+// START CreateCollectionWithProperties
+await client.collections.create({
   name: 'Article',
   properties: [
     {
       name: 'title',
-      dataType: weaviate.configure.dataType.TEXT,
-      vectorizePropertyName: true,
-      tokenization: 'lowercase' ,
+      dataType: dataType.TEXT,
     },
     {
       name: 'body',
-      dataType: weaviate.configure.dataType.TEXT,
-      tokenization: 'whitespace',
-      skipVectorisation: true
+      dataType: dataType.TEXT,
     },
-  ],  
+  ],
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(newCollection, null, 2));
 // END CreateCollectionWithProperties
 
 // ================================
 // ===== READ A CLASS =====
 // ================================
 
+articles = client.collections.get('Article')
 // START ReadOneCollection
-const collectionDefinition = await client.collections.get('Article')
-
-console.log(await collectionDefinition.config.get())  
+// highlight-start
+const collectionConfig = await articles.config.get()
+// highlight-end
+console.log(collectionConfig)
 // END ReadOneCollection
 
 // ==================================================
 // ===== CREATE A COLLECTION WITH NAMED VECTORS =====
 // ==================================================
 
+/*
 // START BasicNamedVectors
-const newCollection = await client.collections.create({
+import { vectorizer, dataType } from 'weaviate-client';
+
+// END BasicNamedVectors
+*/
+
+// START BasicNamedVectors
+await client.collections.create({
   name: 'ArticleNV',
-  properties: [
-    {
-      name: 'title',
-      dataType: weaviate.configure.dataType.TEXT,
-    },
-    {
-      name: 'body',
-      dataType: weaviate.configure.dataType.TEXT,
-    },
-  ],
+
   // highlight-start
-  vectorizer: [
-    weaviate.configure.namedVectorizer('title', {
-      properties: ['title'],
-      vectorizerConfig: weaviate.configure.vectorizer.text2VecOpenAI(),
-      vectorIndexConfig: weaviate.configure.vectorIndex.hnsw()
+  vectorizers: [
+    vectorizer.text2VecCohere({
+      name: 'title',
+      sourceProperties: ['title']
     }),
-    weaviate.configure.namedVectorizer('body', {
-      properties: ['body'],
-      vectorizerConfig: weaviate.configure.vectorizer.text2VecCohere(),
-      vectorIndexConfig: weaviate.configure.vectorIndex.hnsw(),
- })],
+    vectorizer.text2VecOpenAI({
+      name: 'body',
+      sourceProperties: ['body'],
+    }),
+    vectorizer.text2VecOpenAI({
+      name: 'title_country',
+      sourceProperties: ['title','country'],
+    })
+  ],
   // highlight-end
+
+  properties: [
+    { name: 'title', dataType: dataType.TEXT },
+    { name: 'body', dataType: dataType.TEXT },
+    { name: 'country', dataType: dataType.TEXT },
+  ],
 })
-
-
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(newCollection, null, 2));
 // END BasicNamedVectors
 
 // Test
+result = client.collections.get(collectionName).config.get()
+
 assert.equal(
-  result['vectorConfig']['title']['vectorizer']['text2vec-cohere'][
-    'properties'
-  ][0],
+  result.vectorizer.title.properties,
   'title'
 );
 assert.equal(
-  result['vectorConfig']['body']['vectorizer']['text2vec-openai'][
-    'properties'
-  ][0],
+  result.vectorizer.body.properties,
   'body'
 );
 
@@ -144,127 +157,273 @@ await client.collections.delete('ArticleNV')
 // ===== CREATE A COLLECTION WITH VECTORIZER =====
 // ===============================================
 
+/*
 // START Vectorizer
-const newCollection = await client.collections.create({
+import { vectorizer, dataType } from 'weaviate-client';
+
+// END Vectorizer
+*/
+
+// START Vectorizer
+await client.collections.create({
   name: 'Article',
-  properties: [
-    {
-      name: 'title',
-      dataType: weaviate.configure.dataType.TEXT,
-      vectorizePropertyName: true,
-      tokenization: 'lowercase' as const ,
-    },
-    {
-      name: 'body',
-      dataType: weaviate.configure.dataType.TEXT,
-      tokenization: 'whitespace' as const,
-      skipVectorisation: true
-    },
-  ],
   // highlight-start
-  vectorizer: weaviate.configure.vectorizer.text2VecHuggingFace(),
+  vectorizers: vectorizer.text2VecOpenAI(),
   // highlight-end
+  properties: [
+    { name: 'title', dataType: dataType.TEXT },
+    { name: 'body', dataType: dataType.TEXT },
+  ],
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(newCollection, null, 2));
 // END Vectorizer
 
 // Test
-assert.equal(result['vectorizer'], 'text2vec-openai');
-assert.equal(result['properties'].length, 1); // no 'body' from the previous example
+result = client.collections.get(collectionName).config.get()
+
+assert.equal(result.vectorizer.default.vectorizer.name, 'text2vec-openai');
+assert.equal(result.properties.length, 2);
 
 // Delete the class to recreate it
 await client.collections.delete('Article')
 
 // ===========================
-// ===== SetVectorIndex =====
+// ===== SetVectorIndexType =====
 // ===========================
 
-// START SetVectorIndex
-const newCollection = await client.collections.create({
-  name: 'Article',
-  properties: [
-    {
-      name: 'title',
-      dataType: weaviate.configure.dataType.TEXT,
-    },
-    {
-      name: 'body',
-      dataType: weaviate.configure.dataType.TEXT,
-    },
-  ],
-  vectorizer: weaviate.configure.vectorizer.text2VecOpenAI(),
-  // highlight-start
-  vectorIndex: weaviate.configure.vectorIndex.hnsw()
-  // highlight-end
-})
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
+/*
+// START SetVectorIndexType
+import { vectorizer, dataType, configure } from 'weaviate-client';
 
-// END SetVectorIndex
+// END SetVectorIndexType
+*/
+
+// START SetVectorIndexType
+await client.collections.create({
+  name: 'Article',
+  vectorizers: vectorizer.text2VecOpenAI({
+    // highlight-start
+    vectorIndexConfig: configure.vectorIndex.hnsw(),  // Use HNSW
+    // vectorIndexConfig: configure.vectorIndex.flat(),  // Use Flat
+    // vectorIndexConfig: configure.vectorIndex.dynamic(),  // Use Dynamic
+    // highlight-end
+  }),
+  properties: [
+    { name: 'title', dataType: dataType.TEXT },
+    { name: 'body', dataType: dataType.TEXT },
+  ],
+})
+// END SetVectorIndexType
 
 // Test
-assert.equal(result['vectorizer'], 'text2vec-openai');
-assert.equal(result['vectorIndexType'], 'flat');
-assert.equal(result['properties'].length, 1); // no 'body' from the previous example
+result = client.collections.get(collectionName).config.get()
+
+assert.equal(result.vectorizer.default.vectorizer.name, 'text2vec-openai');
+assert.equal(result.vectorIndexType, 'hnsw');
+assert.equal(result.properties.length, 2);
 
 // Delete the class to recreate it
-await client.schema.classDeleter().withClassName(className).do();
+await client.collections.delete(collectionName)
+
+// ===========================
+// ===== SetVectorIndexParams =====
+// ===========================
+
+/*
+// START SetVectorIndexParams
+import { configure, vectorizer } from 'weaviate-client';
+
+// END SetVectorIndexParams
+*/
+
+// START SetVectorIndexParams
+await client.collections.create({
+  name: 'Article',
+  // Additional configuration not shown
+  vectorizers: vectorizer.text2VecCohere({
+    // highlight-start
+    vectorIndexConfig: configure.vectorIndex.flat({
+      quantizer: configure.vectorIndex.quantizer.bq({
+        rescoreLimit: 200,
+        cache: true
+      }),
+      vectorCacheMaxObjects: 100000
+    })
+    // highlight-end
+  })
+})
+// END SetVectorIndexParams
+
+// Test
+result = client.collections.get(collectionName).config.get()
+
+assert.equal(result.vectorizer.default.vectorizer.name, 'text2vec-openai');
+assert.equal(result.vectorIndexType, 'flat');
+assert.equal(result.properties.length, 2);
+
+// Delete the class to recreate it
+await client.collections.delete(collectionName)
 
 // ===========================
 // ===== MODULE SETTINGS =====
 // ===========================
 
+/*
 // START ModuleSettings
-const newCollection = await client.collections.create({
+import { vectorizer } from 'weaviate-client';
+
+// END ModuleSettings
+*/
+
+
+// START ModuleSettings
+await client.collections.create({
   name: 'Article',
   // highlight-start
-  vectorizer: weaviate.configure.vectorizer.text2VecCohere({
+  vectorizers: vectorizer.text2VecCohere({
     model: 'embed-multilingual-v2.0',
-    vectorizeClassName: true,
+    vectorizeCollectionName: true,
   }),
   // highlight-end
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
 // END ModuleSettings
 
 // Test
-assert.equal(result.vectorizer, 'text2vec-cohere');
+result = client.collections.get(collectionName).config.get()
+
+assert.equal(result.vectorizer.default.vectorizer.name, 'text2vec-cohere');
 assert.equal(
-  result.moduleConfig['text2vec-cohere']['model'],
+  result.vectorizer.default.vectorizer.config.model,
   'embed-multilingual-v2.0'
 );
 
 // Delete the class to recreate it
-await client.schema.classDeleter().withClassName(className).do();
+await client.collections.delete(collectionName)
 
 // ====================================
 // ===== MODULE SETTINGS PROPERTY =====
 // ====================================
 
+/*
+// START PropModuleSettings
+import { vectorizer, dataType, tokenization } from 'weaviate-client';
+
+// END PropModuleSettings
+*/
+{
 // START PropModuleSettings
 const newCollection = await client.collections.create({
+  name: 'Article',
+  vectorizers: vectorizer.text2VecHuggingFace(),
+  properties: [
+    {
+      name: 'title',
+      dataType: dataType.TEXT,
+      // highlight-start
+      vectorizePropertyName: true,
+      tokenization: tokenization.LOWERCASE // or 'lowercase'
+      // highlight-end
+    },
+    {
+      name: 'body',
+      dataType: dataType.TEXT,
+      // highlight-start
+      skipVectorization: true,
+      tokenization: tokenization.WHITESPACE // or 'whitespace'
+      // highlight-end
+    },
+  ],
+})
+// END PropModuleSettings
+
+// Test vectorizeCollectionName
+result = client.collections.get(collectionName).config.get()
+
+assert.equal(result.vectorizer.default.vectorizer.name, 'text2vec-cohere');
+assert.equal(
+  result.vectorizer.default.vectorizer.config.vectorizeCollectionName,
+  'true'
+);
+
+// Delete the class to recreate it
+await client.collections.delete(collectionName)
+}
+
+// ===========================
+// ===== DISTANCE METRIC =====
+// ===========================
+
+/*
+// START DistanceMetric
+import { configure, vectorizer, vectorDistances } from 'weaviate-client';
+
+// END DistanceMetric
+*/
+
+// START DistanceMetric
+await client.collections.create({
+  name: 'Article',
+  vectorizers: vectorizer.text2VecOllama({
+    // highlight-start
+    vectorIndexConfig: configure.vectorIndex.hnsw({
+      distanceMetric: vectorDistances.COSINE // or 'cosine'
+    })
+    // highlight-end
+  })
+})
+// END DistanceMetric
+
+// Test
+result = client.collections.get(collectionName).config.get()
+
+assert.equal(result.vectorizer.default.indexConfig.distance, 'cosine');
+
+// Delete the class to recreate it
+await client.collections.delete(collectionName)
+
+// ===================================================================
+// ===== CREATE A COLLECTION WITH CUSTOM INVERTED INDEX SETTINGS =====
+// ===================================================================
+
+/*
+// START SetInvertedIndexParams
+import { dataType } from 'weaviate-client';
+
+// END SetInvertedIndexParams
+*/
+
+// START SetInvertedIndexParams
+await client.collections.create({
   name: 'Article',
   properties: [
     {
       name: 'title',
-      dataType: weaviate.configure.dataType.TEXT,
-      vectorizePropertyName: true,
-      tokenization: 'lowercase'
+      dataType: dataType.TEXT,
+      // highlight-start
+      indexFilterable: true,
+      indexSearchable: true,
+      // highlight-end
     },
     {
-      name: 'body',
-      dataType: weaviate.configure.dataType.TEXT,
-      skipVectorisation: true,
-      tokenization: 'whitespace'
-    },],
-  vectorizer: weaviate.configure.vectorizer.text2VecHuggingFace(),
+      name: 'chunk',
+      dataType: dataType.INT,
+      // highlight-start
+      indexRangeFilters: true,
+      // highlight-end
+    },
+  ],
+  // highlight-start
+  invertedIndex: {
+    bm25: {
+      b: 0.7,
+      k1: 1.25
+    },
+    indexNullState: true,
+    indexPropertyLength: true,
+    indexTimestamps: true
+  }
+  // highlight-end
 })
-
-// The returned value is the full class definition, showing all defaults
-console.log(JSON.stringify(newCollection, null, 2));
-// END PropModuleSettings
+// END SetInvertedIndexParams
 
 // Test
 assert.equal(result.vectorizer, 'text2vec-huggingface');
@@ -276,101 +435,165 @@ assert.equal(
 );
 
 // Delete the class to recreate it
-await client.schema.classDeleter().withClassName(className).do();
+await client.collections.delete(collectionName)
 
-// ===========================
-// ===== DISTANCE METRIC =====
-// ===========================
 
-// START DistanceMetric
-const newCollection = await client.collections.create({
+// ===============================================
+// ===== CREATE A COLLECTION WITH A RERANKER MODULE =====
+// ===============================================
+
+// START SetReranker
+// import { vectorizer, reranker } from 'weaviate-client';
+
+// END SetReranker
+
+// START SetReranker
+await client.collections.create({
   name: 'Article',
+  vectorizers: vectorizer.text2VecOpenAI(),
   // highlight-start
-  vectorIndex: weaviate.configure.vectorIndex.hnsw({
-    distanceMetric: 'cosine'
-  })
+  reranker: reranker.cohere(),
   // highlight-end
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
-
-// END DistanceMetric
+// END SetReranker
 
 // Test
-assert.equal(result.vectorIndexConfig.distance, 'cosine');
+Object.keys(result['moduleConfig']).includes('reranker-cohere');
 
 // Delete the class to recreate it
-await client.schema.classDeleter().withClassName(className).do();
+await client.collections.delete(collectionName)
+
 
 // ===============================================
 // ===== CREATE A COLLECTION WITH A GENERATIVE MODULE =====
 // ===============================================
 
+/*
 // START SetGenerative
-const newCollection = await client.collections.create({
+import { vectorizer, generative } from 'weaviate-client';
+
+// END SetGenerative
+*/
+
+// START SetGenerative
+await client.collections.create({
   name: 'Article',
-  properties: [
-    {
-      name: 'title',
-      dataType: weaviate.configure.dataType.TEXT,
-    },
-  ],
+  vectorizers: vectorizer.text2VecOpenAI(),
   // highlight-start
-  vectorizer: weaviate.configure.vectorizer.text2VecOpenAI(),
+  generative: generative.openAI(),
   // highlight-end
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
-
 // END SetGenerative
 
 // Test
 Object.keys(result['moduleConfig']).includes('generative-openai');
 
 // Delete the class to recreate it
-await client.schema.classDeleter().withClassName(className).do();
+await client.collections.delete(collectionName)
+
+// =======================================================================
+// ===== CREATE A COLLECTION WITH A GENERATIVE MODULE AND MODEL NAME =====
+// =======================================================================
+
+/*
+// START SetGenModel
+import { vectorizer, generative } from 'weaviate-client';
+
+// END SetGenModel
+*/
+
+// START SetGenModel
+await client.collections.create({
+  name: 'Article',
+  vectorizers: vectorizer.text2VecOpenAI(),
+  // highlight-start
+  generative: generative.openAI({
+    model: "gpt-4"
+  }),
+  // highlight-end
+})
+// END SetGenModel
+
+// Test
+Object.keys(result['moduleConfig']).includes('generative-openai');
+
+// Delete the class to recreate it
+await client.collections.delete(collectionName)
 
 // =======================
 // ===== REPLICATION =====
 // =======================
 
+/*
 // START ReplicationSettings
-const newCollection = await client.collections.create({
+import { configure } from 'weaviate-client';
+
+// END ReplicationSettings
+*/
+
+// START ReplicationSettings
+await client.collections.create({
   name: 'Article',
   // highlight-start
-  replication: weaviate.configure.replication({
+  replication: configure.replication({
     factor: 3
   }),
   // highlight-end
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
-
 // END ReplicationSettings
 
 // Test
 assert.equal(result.replicationConfig.factor, 3);
 
+
+// =======================
+// ===== Async Repair ====
+// =======================
+
+/*
+// START AsyncRepair
+import { configure } from 'weaviate-client';
+
+// END AsyncRepair
+*/
+
+// START AsyncRepair
+await client.collections.create({
+ name: 'Article',
+ // highlight-start
+ replication: configure.replication({
+   factor: 3,
+   asyncEnabled: true,
+ }),
+ // highlight-end
+})
+// END AsyncRepair
+
+// Test
+// TODO NEEDS TEST assert.equal(result.replicationConfig.factor, 3);
+
 // ====================
 // ===== SHARDING =====
 // ====================
 
+/*
 // START ShardingSettings
-const newCollection = await client.collections.create({
+import { configure } from 'weaviate-client';
+
+// END ShardingSettings
+*/
+
+// START ShardingSettings
+await client.collections.create({
   name: 'Article',
   // highlight-start
-  sharding: weaviate.configure.sharding({
+  sharding: configure.sharding({
     virtualPerPhysical: 128,
     desiredCount: 1,
-    actualCount: 1,
     desiredVirtualCount: 128,
-    actualVirtualCount: 128
   })
   // highlight-end
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
-
 // END ShardingSettings
 
 // Test
@@ -385,48 +608,59 @@ assert.equal(result.shardingConfig.actual_virtual_count, 128);
 // =========================
 
 // START Multi-tenancy
-const newCollection = await client.collections.create({
+await client.collections.create({
   name: 'Article',
   // highlight-start
-  multiTenancy: weaviate.configure.multiTenancy({
-    enabled: true,
-  })
+  multiTenancy: { enabled: true }
+  // multiTenancy: configure.multiTenancy({ enabled: true }) // alternatively use helper function
   // highlight-end
 })
-// The returned value is the full collection definition, showing all defaults
-console.log(JSON.stringify(await newCollection.config.get(), null, 2));
-
 // END Multi-tenancy
 
 // ==========================
 // ===== ADD A PROPERTY =====
 // ==========================
 
-// START AddProp
-const prop = {
-  name: 'body',
-  dataType: ['text'],
-};
+// // START AddProp
+// const prop = {
+//   name: 'body',
+//   dataType: ['text'],
+// };
 
-const resultProp = await client.schema
-  .propertyCreator()
-  .withClassName('Article')
-  .withProperty(prop)
-  .do();
+// const resultProp = await client.schema
+//   .propertyCreator()
+//   .withClassName('Article')
+//   .withProperty(prop)
+//   .do();
 
-// The returned value is full property definition
-console.log(JSON.stringify(resultProp, null, 2));
-// END AddProp
+// // The returned value is full property definition
+// console.log(JSON.stringify(resultProp, null, 2));
+// // END AddProp
 
-// Test
-assert.equal(resultProp.name, 'body');
+// // Test
+// assert.equal(resultProp.name, 'body');
 
 // ==============================
 // ===== MODIFY A PARAMETER =====
 // ==============================
 
+articles = client.collections.get('Article')
+
+/*
 // START ModifyParam
-// Not available yet - https://github.com/weaviate/typescript-client/issues/64
+import { reconfigure } from 'weaviate-client';
+
+// END ModifyParam
+*/
+
+// START ModifyParam
+// highlight-start
+articles.config.update({
+  invertedIndex: reconfigure.invertedIndex({
+    stopwordsRemovals: ['a', 'the'],
+  })
+})
+// highlight-end
 // END ModifyParam
 
 // ================================
@@ -434,41 +668,30 @@ assert.equal(resultProp.name, 'body');
 // ================================
 
 // START ReadAllCollections
-await client.collections.listAll()
+const allCollections = await client.collections.listAll()
+console.log(JSON.stringify(allCollections, null, 2));
 // END ReadAllCollections
 
 // ================================
-// ===== UPDATE A CLASS =====
+// ===== UPDATE A COLLECTION =====
 // ================================
 
-// Clean slate
-try {
-  await client.schema.classDeleter().withClassName(className).do();
-} catch (e) {
-  // ignore error if class doesn't exist
-}
+articles = client.collections.get('Article')
+
+
+/*
+// START UpdateCollection
+import { reconfigure } from 'weaviate-client';
+
+// END UpdateCollection
+*/
 
 // START UpdateCollection
-// Define and create a class
-const originalClassObj = {
-  class: className,
-  vectorIndexConfig: {
-    distance: 'cosine', // Note the distance metric
-  },
-};
-
-// Add the class to the schema
-let originalClassResponse = await client.schema
-  .classCreator()
-  .withClass(originalClassObj)
-  .do();
-
-const UpdateCollectionObj = {
-  class: className,
-  vectorIndexConfig: {
-    distance: 'dot', // Note the distance metric
-  },
-};
-
-// Update the class definition
-// Not yet available in TS
+// highlight-start
+articles.config.update({
+  invertedIndex: reconfigure.invertedIndex({
+    bm25k1: 1.5
+  })
+})
+// highlight-end
+// END UpdateCollection

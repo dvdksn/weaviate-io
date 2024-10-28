@@ -25,8 +25,8 @@ Have their own sections, and others such as the
 
 And more can be found in the [More Resources](./more-resources/index.md) section.
 
-:::tip Looking for Weaviate Cloud Services docs?
-The Weaviate Cloud Services (WCS) documentation now has its own section! [Check it out here](../wcs/index.mdx).
+:::tip Looking for Weaviate Cloud docs?
+The Weaviate Cloud (WCD) documentation now has its own section! [Check it out here](../wcs/index.mdx).
 :::
 
 ### For new users
@@ -40,9 +40,7 @@ If you are new to Weaviate, we recommend starting with these sections:
 We suggest you browse through the [concepts](./concepts/index.md) section if you are interested in how Weaviate works.
 
 :::info Help us to help you!
-If the documentation does not quite suit **your** needs, we would love to hear from you.
-
-Please reach out on our [forum](https://forum.weaviate.io) - we can help you with your specific problem, and help make the documentation better. Plus you'll meet our amazing, helpful community of users just like you!
+If you have questions, visit our [forum](https://forum.weaviate.io) - we can help you with your specific problem, and help make the documentation better. Plus you'll meet our amazing, helpful community of users just like you!
 :::
 
 :::note
@@ -51,11 +49,73 @@ Like what you see? Consider giving us a [⭐ on GitHub](https://github.com/weavi
 
 ### Code examples
 
-Where possible, we show code examples in multiple programming languages using our [client libraries](./client-libraries/index.md). The following example shows you how to get the Weaviate schema using different clients.
+Where possible, we show code examples in multiple programming languages using our [client libraries](./client-libraries/index.md). The following example shows you how to get a Weaviate collection definition using different clients.
 
-import CodeSchemaDump from '/_includes/code/schema.dump.mdx';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import FilteredTextBlock from '@site/src/components/Documentation/FilteredTextBlock';
+import PyCode from '!!raw-loader!/_includes/code/howto/manage-data.collections.py';
+import PyCodeV3 from '!!raw-loader!/_includes/code/howto/manage-data.collections-v3.py';
+import TSCode from '!!raw-loader!/_includes/code/howto/manage-data.collections.ts';
+import TSCodeLegacy from '!!raw-loader!/_includes/code/howto/manage-data.collections-v2.ts';
+import JavaCode from '!!raw-loader!/_includes/code/howto/java/src/test/java/io/weaviate/docs/manage-data.classes.java';
+import GoCode from '!!raw-loader!/_includes/code/howto/go/docs/manage-data.classes_test.go';
 
-<CodeSchemaDump />
+<Tabs groupId="languages">
+  <TabItem value="py" label="Python Client v4">
+    <FilteredTextBlock
+      text={PyCode}
+      startMarker="# START ReadAllCollections"
+      endMarker="# END ReadAllCollections"
+      language="py"
+    />
+  </TabItem>
+
+  <TabItem value="py3" label="Python Client v3">
+    <FilteredTextBlock
+      text={PyCodeV3}
+      startMarker="# START ReadAllCollections"
+      endMarker="# END ReadAllCollections"
+      language="py"
+    />
+  </TabItem>
+
+  <TabItem value="js" label="JS/TS Client v3">
+    <FilteredTextBlock
+      text={TSCode}
+      startMarker="// START ReadAllCollections"
+      endMarker="// END ReadAllCollections"
+      language="ts"
+    />
+  </TabItem>
+
+  <TabItem value="js2" label="JS/TS Client v2">
+    <FilteredTextBlock
+      text={TSCodeLegacy}
+      startMarker="// START ReadAllCollections"
+      endMarker="// END ReadAllCollections"
+      language="ts"
+    />
+  </TabItem>
+
+  <TabItem value="java" label="Java">
+    <FilteredTextBlock
+      text={JavaCode}
+      startMarker="// START ReadAllCollections"
+      endMarker="// END ReadAllCollections"
+      language="java"
+    />
+  </TabItem>
+
+  <TabItem value="go" label="Go">
+    <FilteredTextBlock
+      text={GoCode}
+      startMarker="// START ReadAllCollections"
+      endMarker="// END ReadAllCollections"
+      language="go"
+    />
+  </TabItem>
+</Tabs>
 
 ## About this page
 
@@ -124,7 +184,7 @@ Weaviate lets you search through your data even if it's currently being imported
 
 Within Weaviate, all individual data objects are based on a class property structure where a vector represents each data object. You can connect data objects (like in a traditional graph) and search for data objects in the vector space.
 
-You can add data to Weaviate through the [RESTful API](./api/rest/index.md) end-points and retrieve data through the [GraphQL interface](./api/graphql/index.md).
+You can add data to Weaviate through the [RESTful API](/developers/weaviate/api/rest) end-points and retrieve data through the [GraphQL interface](./api/graphql/index.md).
 
 Weaviate's [vector indexing mechanism is modular](./concepts/vector-index.md), and the current available plugin is the Hierarchical Navigable Small World (HNSW) multilayered graph.
 
@@ -138,7 +198,7 @@ If you work with data, you probably work with search engine technology. The best
 
 Take for example the data object: `{ "data": "The Eiffel Tower is a wrought iron lattice tower on the Champ de Mars in Paris." }`
 
-Storing this in a traditional search engine might leverage inverted indices to index the data. This means that to retrieve the data, you need to search for "Eiffel Tower", "wrought iron lattice", or other exact phrases, to find it. But what if you have vast amounts of data, and you want the document about the Eiffel Tower, but you search for "landmarks in France"? Traditional search engines can't help you there, so this is where vector databases show their superiority.
+Storing this in a traditional search engine might leverage inverted indexes to index the data. This means that to retrieve the data, you need to search for "Eiffel Tower", "wrought iron lattice", or other exact phrases, to find it. But what if you have vast amounts of data, and you want the document about the Eiffel Tower, but you search for "landmarks in France"? Traditional search engines can't help you there, so this is where vector databases show their superiority.
 
 Weaviate uses vector indexing mechanisms at its core to represent the data. The vectorization modules (e.g., the NLP module) vectorize the above-mentioned data object in a vector-space where the data object sits _near_ the text "landmarks in France". This means that Weaviate can't find a 100% match, but it will find a very close one, and return the result.
 
@@ -168,6 +228,8 @@ Want to get started or want to learn more? These resources might help you furthe
     - [Concepts](./concepts/index.md)
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

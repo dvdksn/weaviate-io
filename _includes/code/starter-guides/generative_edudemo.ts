@@ -1,4 +1,4 @@
-// Starter-guides: Generative search (RAG)
+// Starter-guides: Retreval augmented generation (RAG)
 
 import assert from 'assert';
 
@@ -9,14 +9,14 @@ import assert from 'assert';
 // Instantiation
 import weaviate, { WeaviateClient } from 'weaviate-client';
 
-const client: WeaviateClient = await weaviate.connectToWCS(
-  'https://some-endpoint.weaviate.network',  // Replace with your endpoint
+const client: WeaviateClient = await weaviate.connectToWeaviateCloud(
+  'https://WEAVIATE_INSTANCE_URL',  // Replace with your Weaviate endpoint
  {
    authCredentials: new weaviate.ApiKey('YOUR-WEAVIATE-API-KEY'),  // Replace with your Weaviate instance API key
    headers: {
      'X-OpenAI-Api-Key': process.env.OPENAI_API_KEY || '',  // Replace with your inference API key
    }
- } 
+ }
 )
 // END Instantiation
 
@@ -28,13 +28,13 @@ const client: WeaviateClient = await weaviate.connectToWCS(
 const myCollection = client.collections.get('GitBookChunk');
 
 const dataRetrievalResult = await myCollection.query.nearText(['states in git'], {
-    returnProperties: ['chunk', 'chapter_title', 'chunk_index'],
-      limit: 2, })
+  returnProperties: ['chunk', 'chapter_title', 'chunk_index'],
+  limit: 2, })
 
-  console.log(JSON.stringify(dataRetrievalResult, null, 2));
+console.log(JSON.stringify(dataRetrievalResult, null, 2));
 // END DataRetrieval
 
-assert(dataRetrievalResult.data.Get['GitBookChunk'].length == 2, "Wrong number of objects returned.")
+assert(dataRetrievalResult.objects.length == 2, "Wrong number of objects returned.")
 
 
 // TransformResultSets
@@ -49,17 +49,16 @@ const groupedTaskResponse = await myCollection.generate.nearText("history of git
 console.log(groupedTaskResponse.generated);
 // END TransformResultSets
 
-assert(typeof groupedTaskResponse.data.Get['GitBookChunk'][0]._additional.generate.groupedResult === 'string', 'The generated object is not a string')
+assert(typeof groupedTaskResponse.generated === 'string', 'The generated object is not a string')
 
 
 // TransformIndividualObjects
-const myWineCollection = await client.collections.get('WineReview');
+const myWineCollection = client.collections.get('WineReview');
 
 const singlePromptresult = await myWineCollection.generate.nearText("fruity white wine",{
   singlePrompt: `Translate this review into French, using emojis:
   ===== Country of origin: {country}, Title: {title}, Review body: {review_body}`
-},
-{
+},{
   returnProperties: ['review_body','title','country','points'],
   limit: 5,
 })
@@ -67,8 +66,8 @@ const singlePromptresult = await myWineCollection.generate.nearText("fruity whit
 console.log(JSON.stringify(singlePromptresult.objects, null, 2));
 // END TransformIndividualObjects
 
-for (const r of singlePromptresult.data.Get['WineReview']) {
-  assert(typeof r._additional.generate.singleResult === 'string', 'The generated object is not a string')
+for (const r of singlePromptresult.objects) {
+  assert(typeof r.generated === 'string', 'The generated object is not a string')
 }
 
 // ListModules

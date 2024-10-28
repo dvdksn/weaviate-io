@@ -5,8 +5,6 @@ image: og/docs/concepts.jpg
 # tags: ['architecture', 'horizontal scaling', 'cluster', 'replication', 'sharding']
 ---
 
-
-## Introduction
 Weaviate can be scaled horizontally by being run on a set of multiple nodes in a cluster. This section lays out various ways in which Weaviate can be scaled, as well as factors to consider while scaling, and Weaviate's architecture in relation to horizontal scaling.
 
 ## Motivation to scale Weaviate
@@ -76,9 +74,36 @@ The groundwork to be able to re-shard has been laid by using Weaviate's Virtual 
 
 ## Node Discovery
 
-Nodes in a cluster use a gossip-like protocol through [Hashicorp's Memberlist](https://github.com/hashicorp/memberlist) to communicate node state and failure scenarios.
+By default, Weaviate nodes in a cluster use a gossip-like protocol through [Hashicorp's Memberlist](https://github.com/hashicorp/memberlist) to communicate node state and failure scenarios.
 
 Weaviate - especially when running as a cluster - is optimized to run on Kubernetes. The [Weaviate Helm chart](/developers/weaviate/installation/kubernetes.md#weaviate-helm-chart) makes use of a `StatefulSet` and a headless `Service` that automatically configures node discovery. All you have to do is specify the desired node count.
+
+### FQDN for node discovery
+
+:::info Added in `v1.25.15`
+:::
+
+There can be a situation where IP-address based node discovery is not optimal. In such cases, you can set `RAFT_ENABLE_FQDN_RESOLVER` and `RAFT_FQDN_RESOLVER_TLD` [environment variables](../config-refs/env-vars.md#multi-node-instances) to enable fully qualified domain name (FQDN) based node discovery.
+
+If this feature is enabled, Weaviate uses the FQDN resolver to resolve the node name to the node IP address for metadata (e.g., Raft) communication.
+
+:::info FQDN: For metadata changes only
+This feature is only used for metadata changes which [use Raft as the consensus mechanism](./replication-architecture/cluster-architecture.md#metadata-replication-raft). It does not affect data read/write operations.
+:::
+
+#### Examples of when to use FQDN for node discovery
+
+The use of FQDN can resolve a situation where if IP addresses are re-used across different clusters, the nodes in one cluster could mistakenly discover nodes in another cluster.
+
+It can also be useful when using services (for example, Kubernetes) where the IP of the services is different from the actual node IP, but it proxies the connection to the node.
+
+#### Environment variables for FQDN node discovery
+
+`RAFT_ENABLE_FQDN_RESOLVER` is a Boolean flag. This flag enables the FQDN resolver. If set to `true`, Weaviate uses the FQDN resolver to resolve the node name to the node IP address. If set to `false`, Weaviate uses the memberlist lookup to resolve the node name to the node IP address. The default value is `false`.
+
+`RAFT_FQDN_RESOLVER_TLD` is a string that is appended in the format `[node-id].[tld]` when resolving a node-id to an IP address, where `[tld]` is the top-level domain.
+
+To use this feature, set `RAFT_ENABLE_FQDN_RESOLVER` to `true`.
 
 ## Node affinity of shards and/or replication shards
 
@@ -97,13 +122,15 @@ Shards were assigned to 'live' nodes in a round-robin fashion starting with a ra
 
 ## Consistency and current limitations
 
-* Changes to the schema are strongly consistent across nodes, whereas changes to data aim to be eventually consistent.
+* Starting with `v1.25.0`, Weaviate adopts the [Raft consensus algorithm](https://raft.github.io/) which is a log-based algorithm coordinated by an elected leader. This brings an additional benefit in that concurrent schema changes are now supported.<br/>If you are a Kubernetes user, see the [`1.25 migration guide`](/developers/weaviate/more-resources/migration/weaviate-1-25.md) before you upgrade. To upgrade, you have to delete your existing StatefulSet.
 * As of `v1.8.0`, the process of broadcasting schema changes across the cluster uses a form of two-phase transaction that as of now cannot tolerate node failures during the lifetime of the transaction.
 * As of `v1.8.0`, replication is currently under development. ([See Roadmap](/developers/weaviate/roadmap/index.md)).
 * As of `v1.8.0`, dynamically scaling a cluster is not fully supported yet. New nodes can be added to an existing cluster, however it does not affect the ownership of shards. Existing nodes can not yet be removed if data is present, as shards are not yet being moved to other nodes prior to a removal of a node. ([See Roadmap](/developers/weaviate/roadmap/index.md)).
 
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

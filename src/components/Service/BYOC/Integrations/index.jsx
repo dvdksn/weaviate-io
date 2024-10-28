@@ -17,16 +17,17 @@ export default function Integrations() {
           <div className={styles.right}>
             <h3>Run Weaviate within your VPC</h3>
             <p>
-              Take advantage of all the best vector search and RAG techniques
-              while ensuring your data stays safe within your own cloud
-              environment.
+              Take advantage of all the best{' '}
+              <Link to="/blog/why-is-vector-search-so-fast">vector search</Link>{' '}
+              and RAG techniques while ensuring your data stays safe within your
+              own cloud environment.
             </p>
             <div className={styles.iconsContainer}>
               <div className={`${styles.iconText} ${styles.contact}`}>
                 <Link href="#contact-sales">Get in touch</Link>
               </div>
               <div className={`${styles.iconText} ${styles.services}`}>
-                <Link href="/services">Check our Services</Link>
+                <Link href="/pricing">Check our Pricing</Link>
               </div>
             </div>
           </div>

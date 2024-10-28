@@ -5,53 +5,51 @@ image: og/docs/configuration.jpg
 # tags: ['configuration', 'operations', 'monitoring', 'observability']
 ---
 
+Weaviate instances can be replicated. Replication can improve read throughput, improve availability, and enable zero-downtime upgrades.
 
-:::info Prerequisites
-- [Concepts: Replication Architecture](../concepts/replication-architecture/index.md)
-:::
-
-Weaviate instances can be replicated to increase availability and read throughput, and to enable zero-downtime upgrades. On this page, you will learn how to set replication for your Weaviate instance.
-
-For more about how replication is designed and built in Weaviate, see the [Replication Architecture](../concepts/replication-architecture/index.md) pages.
+For more details on how replication is designed and built in Weaviate, see [Replication Architecture](../concepts/replication-architecture/index.md).
 
 ## How to configure
 
-Replication is disabled by default and can be enabled per data class in the [collection configuration](../manage-data/collections.mdx#replication-settings). This means you can set different replication factors per class in your dataset. To enable replication on a class, the replication factor has to be set, which looks like the following:
+import RaftRFChangeWarning from '/_includes/1-25-replication-factor.mdx';
 
+<RaftRFChangeWarning/>
 
-```yaml
-{
-  "class": "ExampleClass",
-  "properties": [
-    {
-      "name": "exampleProperty",
-      "dataType": [
-        "text"
-      ]
-    }
-  ],
-  # highlight-start
-  "replicationConfig": {
-    "factor": 3   # Integer, default 1. How many copies of this class will be stored.
-  }
-  # highlight-end
-}
-```
+Replication is disabled by default. It can be enabled per collection in the [collection configuration](../manage-data/collections.mdx#replication-settings). This means you can set different replication factors per class in your dataset.
 
-Here's an example for all clients:
+To enable replication, you can set one or both of the following:
+- `REPLICATION_MINIMUM_FACTOR` environment variable for the entire Weaviate instance, or
+- `replicationFactor` parameter for a collection.
+
+### Weaviate-wide minimum replication factor
+
+The `REPLICATION_MINIMUM_FACTOR` environment variable sets the minimum replication factor for all collections in the Weaviate instance.
+
+If you set the [replication factor for a collection](#replication-factor-for-a-collection), the collection's replication factor overrides the minimum replication factor.
+
+### Replication factor for a collection
 
 import SchemaReplication from '/_includes/code/schema.things.create.replication.mdx';
 
 <SchemaReplication/>
 
-When you set this replication factor in the data schema before you add data, you will have 3 replicas of the data stored. Weaviate can also handle changing this setting after you imported the data. Then the data is copied to the new replica nodes (if there are enough nodes), but note that this is experimental and will be more stable in the future.
+In this example, there are three replicas. If you set the replication factor before you import data, all of the data is replicated three times.
 
-:::caution Note:
-Changing the replication factor after adding data is an **experimental feature** as of v1.17 and will become more stable in the future.
-:::
+The replication factor can be modified after you add data to a collection. If you modify the replication factor afterwards, new data is copied across the new and pre-existing replica nodes.
 
-The data schema has a [write consistency level](../concepts/replication-architecture/consistency.md#tunable-write-consistency) of `ALL`, which means when you upload or update a schema, this will be sent to `ALL` nodes (via a coordinator node). The coordinator node waits for a successful acknowledgement from `ALL` nodes before sending a success message back to the client. This ensures a highly consistent schema in your distributed Weaviate setup.
+The example data schema has a [write consistency](../concepts/replication-architecture/consistency.md#tunable-write-consistency) level of `ALL`. When you upload or update a schema, the changes are sent to `ALL` nodes (via a coordinator node). The coordinator node waits for a successful acknowledgement from `ALL` nodes before sending a success message back to the client. This ensures a highly consistent schema in your distributed Weaviate setup.
 
+## Data consistency
+
+When Weaviate detects inconsistent data across nodes, it attempts to repair the out of sync data.
+
+Starting in v1.26, Weaviate adds [async replication](../concepts/replication-architecture/consistency.md#async-replication) to proactively detect inconsistencies. In earlier versions, Weaviate uses a [repair-on-read](../concepts/replication-architecture/consistency.md#repair-on-read) strategy to repair inconsistencies at read time.
+
+Repair-on-read is automatic. To activate async replication, set `asyncEnabled` to true in the `replicationConfig` section of your collection definition.
+
+import ReplicationConfigWithAsyncRepair from '/_includes/code/configuration/replication-consistency.mdx';
+
+<ReplicationConfigWithAsyncRepair />
 
 ## How to use: Queries
 
@@ -65,15 +63,18 @@ curl "http://localhost:8080/v1/objects/{ClassName}/{id}?consistency_level=ONE"
 ```
 
 :::note
-In v1.17, only [read queries that get data by ID](../api/rest/objects.md#get-a-data-object) had a tunable consistency level. All other object-specific REST endpoints (read or write) used the consistency level `ALL`. Starting with v1.18, all write and read queries are tunable to either `ONE`, `QUORUM` (default) or `ALL`. GraphQL endpoints use the consistency level `ONE` (in both versions).
+In v1.17, only [read queries that get data by ID](../manage-data/read.mdx#get-an-object-by-id) had a tunable consistency level. All other object-specific REST endpoints (read or write) used the consistency level `ALL`. Starting with v1.18, all write and read queries are tunable to either `ONE`, `QUORUM` (default) or `ALL`. GraphQL endpoints use the consistency level `ONE` (in both versions).
 :::
 
 import QueryReplication from '/_includes/code/replication.get.object.by.id.mdx';
 
 <QueryReplication/>
 
+## Related pages
+- [Concepts: Replication Architecture](../concepts/replication-architecture/index.md)
 
+## Questions and feedback
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+import DocsFeedback from '/_includes/docs-feedback.mdx';
 
-<DocsMoreResources />
+<DocsFeedback/>

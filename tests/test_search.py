@@ -16,6 +16,7 @@ import subprocess
         "./_includes/code/howto/search.aggregate.py",
         "./_includes/code/howto/search.generative.py",
         "./_includes/code/howto/search.rerank.py",
+        "./_includes/code/howto/search.multi-target-v4.py"
     ],
 )
 def test_pyv4(empty_weaviates, script_loc):
@@ -49,8 +50,8 @@ def test_ts(empty_weaviates, script_loc):
     )
     command = ["node", "--loader=ts-node/esm", temp_proc_script_loc]
 
-#     try:
-#         # If the script throws an error, this will raise a CalledProcessError
-#         subprocess.check_call(command)
-#     except subprocess.CalledProcessError as error:
-#         pytest.fail(f'Script {temp_proc_script_loc} failed with error: {error}')
+    try:
+        # If the script throws an error, this will raise a CalledProcessError
+        subprocess.check_call(command)
+    except subprocess.CalledProcessError as error:
+        pytest.fail(f'Script {temp_proc_script_loc} failed with error: {error}')

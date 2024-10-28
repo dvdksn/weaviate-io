@@ -1,4 +1,4 @@
-// Howto: Search -> Generative search - TypeScript examples
+// Howto: Search -> Retreval augmented generation - TypeScript examples
 // Run with: node --loader=ts-node/esm search.generative.ts
 import assert from 'assert';
 
@@ -18,6 +18,34 @@ const client = weaviate.client({
 });
 
 let result, generatePrompt, genResults;
+
+// ===============================================
+// ===== QUERY WITH TARGET VECTOR & nearText =====
+// ===============================================
+
+// NamedVectorNearText
+result = await client.graphql
+  .get()
+  .withClassName('WineReviewNV')
+  .withNearText({
+    concepts: ['a sweet German white wine'],
+    // highlight-start
+    targetVectors: ['title_country'],
+    // highlight-end
+  })
+  .withGenerate({
+    singlePrompt: 'Translate this into German: {review_body}',
+    groupedTask: 'Summarize these reviews',
+  })
+  .withLimit(2)
+  .withFields('title review_body country')
+  .do();
+
+console.log(JSON.stringify(result, null, 2));
+// END NamedVectorNearText
+
+// Tests
+assert.deepEqual(result.data.Get.JeopardyQuestion.length, 2);
 
 // =====================================
 // ===== SINGLE GENERATIVE EXAMPLE =====

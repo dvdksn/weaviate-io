@@ -79,10 +79,10 @@ Use the `vector` field to fetch the vector representation of the data object
 
 ### generate
 
-:::info Requires a [`generative-xxx` module](../../modules/reader-generator-modules/index.md)
+:::info Requires a [generative model integration](../../model-providers/index.md)
 :::
 
-The `generate` field can be used to perform a [generative search](../../search/generative.md).
+The `generate` field can be used to perform [retrieval augmented generation](../../search/generative.md).
 
 A `generate` query will cause corresponding additional result fields to be available, such as `singleResult`, `groupedResult` and `error`.
 
@@ -91,7 +91,7 @@ For examples, see the [related how-to page](../../search/generative.md).
 
 ### rerank
 
-:::info Requires a [`reranker-xxx` module](../../modules/retriever-vectorizer-modules/index.md)
+:::info Requires a [reranker integration](../../model-providers/index.md)
 :::
 
 The `rerank` field can be used to [reorder the search results](../../search/rerank.md). It accepts two parameters:
@@ -161,7 +161,7 @@ The `explainScore` will be the hybrid score of the result, broken down into its 
 
 ### Classification
 
-When a data-object has been [subjected to classification](../rest/classification.md), you can get additional information about how the object was classified by running the following command:
+When a data-object has been [subjected to classification](/developers/weaviate/api/rest#tag/classifications), you can get additional information about how the object was classified by running the following command:
 
 import GraphQLUnderscoreClassification from '/_includes/code/graphql.underscoreproperties.classification.mdx';
 
@@ -236,6 +236,8 @@ The above result can be plotted as follows (where the result in red is the first
 * Due to the relatively high cost of the underlying algorithm, we recommend to limit requests including a `featureProjection` in high-load situations where response time matters. Avoid parallel requests including a `featureProjection`, so that some threads stay available to serve other, time-critical requests.
 
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

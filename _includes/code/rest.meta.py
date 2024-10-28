@@ -10,12 +10,16 @@ client.close()
 import weaviate.classes as wvc
 import os
 
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),
-    auth_credentials=weaviate.auth.AuthApiKey(os.getenv("WCS_DEMO_RO_KEY")),
+wcd_api_key = os.environ["WCD_DEMO_RO_KEY"]
+
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),
+    auth_credentials=wvc.init.Auth.api_key(wcd_api_key),
 )
 
+# START-ANY
 try:
+# END-ANY
 
     # ========================================
     # GetServerMeta

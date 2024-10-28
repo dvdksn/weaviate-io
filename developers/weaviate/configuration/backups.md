@@ -10,31 +10,30 @@ import TabItem from '@theme/TabItem';
 import FilteredTextBlock from '@site/src/components/Documentation/FilteredTextBlock';
 import PyCode from '!!raw-loader!/_includes/code/howto/configure.backups.py';
 import PyCodeV3 from '!!raw-loader!/_includes/code/howto/configure.backups-v3.py';
-import TSCode from '!!raw-loader!/_includes/code/howto/configure.backups.ts';
+import TSCodeBackup from '!!raw-loader!/_includes/code/howto/configure.backups.backup.ts';
+import TSCodeRestore from '!!raw-loader!/_includes/code/howto/configure.backups.restore.ts';
+import TSCodeStatus from '!!raw-loader!/_includes/code/howto/configure.backups.status.ts';
+import TSCodeLegacy from '!!raw-loader!/_includes/code/howto/configure.backups-v2.ts';
 import GoCode from '!!raw-loader!/_includes/code/howto/configure.backups.go';
 import JavaCode from '!!raw-loader!/_includes/code/howto/configure.backups.java';
 import CurlCode from '!!raw-loader!/_includes/code/howto/configure.backups.sh';
 
+Weaviate's Backup feature is designed to work natively with cloud technology. Most notably, it allows:
 
-:::info Related pages
-- [References: REST API: Backups](../api/rest/backups.md)
-:::
-
-## Introduction
-
-Weaviate's Backup feature is designed to feel very easy to use and work natively with cloud technology. Most notably, it allows:
-
-* Seamless integration with widely-used cloud blob storage, such as AWS S3, GCS or Azure
+* Seamless integration with widely-used cloud blob storage, such as AWS S3, GCS, or Azure
 * Backup and Restore between different storage providers
 * Single-command backup and restore from the REST API
-* Choice of backing up an entire instance, or selected classes only
+* Choice of backing up an entire instance, or selected collections only
 * Zero downtime & minimal impact for your users when backups are running
 * Easy Migration to new environments
 
 :::note
-_The backup functionality was introduced in Weaviate `v1.15`, but for single-node instances only. Support for multi-node backups was introduced in `v1.16`_.
+_Single node backup is available starting in Weaviate `v1.15`. Multi-node backups is available starting in `v1.16`_.
 :::
 
+:::caution Backups do not include inactive or offloaded tenants
+Backups of [multi-tenant collections](../concepts/data.md#multi-tenancy) will only include `active` tenants, and not `inactive` or `offloaded` tenants. [Activate tenants](../manage-data/multi-tenancy.md#activate-tenant) before creating a backup to ensure all data is included.
+:::
 
 ## Configuration
 
@@ -67,7 +66,7 @@ In addition to enabling the module, you need to configure it using environment v
 
 #### S3 Configuration (AWS-specific)
 
-In addition to the vendor-agnostic configuration from above, you can set AWS-specific configuration for authentication. You can choose between access-key or ARN-based authentication:
+You must provide Weaviate with AWS authentication details. You can choose between access-key or ARN-based authentication:
 
 #### Option 1: With IAM and ARN roles
 
@@ -79,7 +78,7 @@ The backup module will first try to authenticate itself using AWS IAM. If the au
 | --- | --- |
 | `AWS_ACCESS_KEY_ID` | The id of the AWS access key for the desired account. |
 | `AWS_SECRET_ACCESS_KEY` | The secret AWS access key for the desired account. |
-| `AWS_REGION` | The AWS Region. If not provided, the module will try to parse `AWS_DEFAULT_REGION`. |
+| `AWS_REGION` | (Optional) The AWS Region. If not provided, the module will try to parse `AWS_DEFAULT_REGION`. |
 
 
 ### GCS (Google Cloud Storage)
@@ -201,7 +200,7 @@ POST /v1/backups/{backend}
 
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
-| `backend` | string | yes | The name of the backup provider module without the `backup-` prefix, for example `s3`, `gcs`, or `filesystem`. |
+| `backend` | string | yes | The name of the backup provider module without the `backup-` prefix, for example `s3`, `gcs`, `azure`, or `filesystem`. |
 
 ##### Request Body
 
@@ -210,8 +209,8 @@ The request takes a JSON object with the following properties:
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
 | `id` | string (lowercase letters, numbers, underscore, minus) | yes | The id of the backup. This string must be provided on all future requests, such as status checking or restoration. |
-| `include` | list of strings | no | An optional list of class names to be included in the backup. If not set, all classes are included. |
-| `exclude` | list of strings | no | An optional list of class names to be excluded from the backup. If not set, no classes are excluded. |
+| `include` | list of strings | no | An optional list of collection names to be included in the backup. If not set, all collections are included. |
+| `exclude` | list of strings | no | An optional list of collection names to be excluded from the backup. If not set, no collections are excluded. |
 | `config`  | object          | no | An optional object to configure the backup.  If not set, it will assign defaults from config table.|
 
 :::note
@@ -228,7 +227,7 @@ You cannot set `include` and `exclude` at the same time. Set none or exactly one
 Weaviate uses [gzip compression](https://pkg.go.dev/compress/gzip#pkg-constants) by default.
 :::
 <Tabs groupId="languages">
-  <TabItem value="py" label="Python (v4)">
+  <TabItem value="py" label="Python Client v4">
     <FilteredTextBlock
       text={PyCode}
       startMarker="# START CreateBackup"
@@ -237,7 +236,7 @@ Weaviate uses [gzip compression](https://pkg.go.dev/compress/gzip#pkg-constants)
     />
   </TabItem>
 
-  <TabItem value="pyv3" label="Python (v3)">
+  <TabItem value="pyv3" label="Python Client v3">
     <FilteredTextBlock
       text={PyCodeV3}
       startMarker="# START CreateBackup"
@@ -246,9 +245,18 @@ Weaviate uses [gzip compression](https://pkg.go.dev/compress/gzip#pkg-constants)
     />
   </TabItem>
 
-  <TabItem value="js" label="JavaScript/TypeScript">
+  <TabItem value="js" label="JS/TS Client v3">
     <FilteredTextBlock
-      text={TSCode}
+      text={TSCodeBackup}
+      startMarker="// START CreateBackup"
+      endMarker="// END CreateBackup"
+      language="ts"
+    />
+  </TabItem>
+
+  <TabItem value="js2" label="JS/TS Client v2">
+    <FilteredTextBlock
+      text={TSCodeLegacy}
       startMarker="// START CreateBackup"
       endMarker="// END CreateBackup"
       language="ts"
@@ -309,7 +317,7 @@ GET /v1/backups/{backend}/{backup_id}
 The response contains a `"status"` field. If the status is `SUCCESS`, the backup is complete. If the status is `FAILED`, an additional error is provided.
 
 <Tabs groupId="languages">
-  <TabItem value="py" label="Python (v4)">
+  <TabItem value="py" label="Python Client v4">
     <FilteredTextBlock
       text={PyCode}
       startMarker="# START StatusCreateBackup"
@@ -317,7 +325,7 @@ The response contains a `"status"` field. If the status is `SUCCESS`, the backup
       language="py"
     />
   </TabItem>
-  <TabItem value="pyv3" label="Python (v3)">
+  <TabItem value="pyv3" label="Python Client v3">
     <FilteredTextBlock
       text={PyCodeV3}
       startMarker="# START StatusCreateBackup"
@@ -326,9 +334,18 @@ The response contains a `"status"` field. If the status is `SUCCESS`, the backup
     />
   </TabItem>
 
-  <TabItem value="js" label="JavaScript/TypeScript">
+  <TabItem value="js" label="JS/TS Client v3">
     <FilteredTextBlock
-      text={TSCode}
+      text={TSCodeStatus}
+      startMarker="// START StatusCreateBackup"
+      endMarker="// END StatusCreateBackup"
+      language="ts"
+    />
+  </TabItem>
+
+  <TabItem value="js2" label="JS/TS Client v2">
+    <FilteredTextBlock
+      text={TSCodeLegacy}
       startMarker="// START StatusCreateBackup"
       endMarker="// END StatusCreateBackup"
       language="ts"
@@ -363,11 +380,34 @@ The response contains a `"status"` field. If the status is `SUCCESS`, the backup
   </TabItem>
 </Tabs>
 
+### Cancel Backup
+
+An ongoing backup can be cancelled at any time. The backup process will be stopped, and the backup will be marked as `CANCELLED`.
+
+<Tabs groupId="languages">
+  <TabItem value="py" label="Python Client v4">
+    <FilteredTextBlock
+      text={PyCode}
+      startMarker="# START CancelBackup"
+      endMarker="# END CancelBackup"
+      language="py"
+    />
+  </TabItem>
+  <TabItem value="js" label="JS/TS Client v3">
+
+    ```ts
+    // Coming soon
+    ```
+
+  </TabItem>
+</Tabs>
+
+This operation is particularly useful if you have started a backup by accident, or if you would like to stop a backup that is taking too long.
 
 ### Restore Backup
 You can restore any backup to any machine as long as the name and number of nodes between source and target are identical. The backup does not need to be created on the same instance. Once a backup backend is configured, you can restore a backup with a single HTTP request.
 
-Note that a restore fails if any of the classes already exist on this instance.
+Note that a restore fails if any of the collections already exist on this instance.
 
 #### Method and URL
 
@@ -389,13 +429,13 @@ The request takes a json object with the following properties:
 
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
-| `include` | list of strings | no | An optional list of class names to be included in the backup. If not set, all classes are included. |
-| `exclude` | list of strings | no | An optional list of class names to be excluded from the backup. If not set, no classes are excluded. |
+| `include` | list of strings | no | An optional list of collection names to be included in the backup. If not set, all collections are included. |
+| `exclude` | list of strings | no | An optional list of collection names to be excluded from the backup. If not set, no collections are excluded. |
 | `config`  | object          | no | An optional object to configure the restore.  If not set, it will assign defaults from config table.|
 
 *Note 1: You cannot set `include` and `exclude` at the same time. Set none or exactly one of those.*
 
-*Note 2: `include` and `exclude` are relative to the classes contained in the backup. The restore process does not know which classes existed on the source machine if they were not part of the backup.*
+*Note 2: `include` and `exclude` are relative to the collections contained in the backup. The restore process does not know which collections existed on the source machine if they were not part of the backup.*
 
 ##### Config object properties
 | name | type | required | default | description |
@@ -403,7 +443,7 @@ The request takes a json object with the following properties:
 | `cpuPercentage`   | number | no | `50%` | An optional integer to set the desired CPU core utilization ranging from 1%-80%. |
 
 <Tabs groupId="languages">
-  <TabItem value="py" label="Python (v4)">
+  <TabItem value="py" label="Python Client v4">
     <FilteredTextBlock
       text={PyCode}
       startMarker="# START RestoreBackup"
@@ -411,7 +451,7 @@ The request takes a json object with the following properties:
       language="py"
     />
   </TabItem>
-  <TabItem value="pyv3" label="Python (v3)">
+  <TabItem value="pyv3" label="Python Client v3">
     <FilteredTextBlock
       text={PyCodeV3}
       startMarker="# START RestoreBackup"
@@ -420,9 +460,18 @@ The request takes a json object with the following properties:
     />
   </TabItem>
 
-  <TabItem value="js" label="JavaScript/TypeScript">
+  <TabItem value="js" label="JS/TS Client v3">
     <FilteredTextBlock
-      text={TSCode}
+      text={TSCodeRestore}
+      startMarker="// START RestoreBackup"
+      endMarker="// END RestoreBackup"
+      language="ts"
+    />
+  </TabItem>
+
+  <TabItem value="js2" label="JS/TS Client v2">
+    <FilteredTextBlock
+      text={TSCodeLegacy}
       startMarker="// START RestoreBackup"
       endMarker="// END RestoreBackup"
       language="ts"
@@ -480,7 +529,7 @@ GET /v1/backups/{backend}/{backup_id}/restore
 The response contains a `"status"` field. If the status is `SUCCESS`, the restore is complete. If the status is `FAILED`, an additional error is provided.
 
 <Tabs groupId="languages">
-  <TabItem value="py" label="Python (v4)">
+  <TabItem value="py" label="Python Client v4">
     <FilteredTextBlock
       text={PyCode}
       startMarker="# START StatusRestoreBackup"
@@ -488,7 +537,7 @@ The response contains a `"status"` field. If the status is `SUCCESS`, the restor
       language="py"
     />
   </TabItem>
-  <TabItem value="pyv3" label="Python (v3)">
+  <TabItem value="pyv3" label="Python Client v3">
     <FilteredTextBlock
       text={PyCodeV3}
       startMarker="# START StatusRestoreBackup"
@@ -497,9 +546,18 @@ The response contains a `"status"` field. If the status is `SUCCESS`, the restor
     />
   </TabItem>
 
-  <TabItem value="js" label="JavaScript/TypeScript">
+  <TabItem value="js" label="JS/TS Client v3">
     <FilteredTextBlock
-      text={TSCode}
+      text={TSCodeStatus}
+      startMarker="// START StatusRestoreBackup"
+      endMarker="// END StatusRestoreBackup"
+      language="ts"
+    />
+  </TabItem>
+
+  <TabItem value="js2" label="JS/TS Client v2">
+    <FilteredTextBlock
+      text={TSCodeLegacy}
       startMarker="// START StatusRestoreBackup"
       endMarker="// END StatusRestoreBackup"
       language="ts"
@@ -571,7 +629,11 @@ The flexibility around backup providers opens up new use cases. Besides using th
 
 For example, consider the following situation: You would like to do a load test on production data. If you would do the load test in production it might affect users. An easy way to get meaningful results without affecting uses it to duplicate your entire environment. Once the new production-like "loadtest" environment is up, create a backup from your production environment and restore it into your "loadtest" environment. This even works if the production environment is running on a completely different cloud provider than the new environment.
 
+## Related pages
+- [References: REST API: Backups](/developers/weaviate/api/rest#tag/backups)
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

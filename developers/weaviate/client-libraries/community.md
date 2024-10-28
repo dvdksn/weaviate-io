@@ -9,8 +9,8 @@ Weaviate supports client libraries for these languages:
 
 - [Python](/developers/weaviate/client-libraries/python)
 - [TypeScript](/developers/weaviate/client-libraries/typescript)
-- [Go](/developers/weaviate/client-libraries/java)
-- [Java](/developers/weaviate/client-libraries/go)
+- [Go](/developers/weaviate/client-libraries/go)
+- [Java](/developers/weaviate/client-libraries/java)
 
 Members of the Weaviate community provide client libraries for some additional languages. These community contributed libraries are not officially maintained by Weaviate. However, we are very grateful for the work these developers do, and we want to share it with you.
 
@@ -25,10 +25,12 @@ Members of the Weaviate community provide client libraries for some additional l
 
 ## Contributing
 
-To contribute to these libraries, please contact the maintainers directly.
+To contribute to these libraries, contact the maintainers directly.
 
-If you have a Weaviate client library you would like to add here, please let us know in the [forum](https://forum.weaviate.io/) or on [Slack](https://weaviate.io/slack).
+If you have a Weaviate client library you would like to add here, let us know in the [forum](https://forum.weaviate.io/) or on [Slack](https://weaviate.io/slack).
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

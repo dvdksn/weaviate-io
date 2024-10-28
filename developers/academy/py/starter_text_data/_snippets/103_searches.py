@@ -14,19 +14,22 @@ from datetime import datetime
 
 # END-ANY
 
+from weaviate.classes.init import Auth
+
 headers = {"X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")}
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),  # Replace with your WCS URL
-    auth_credentials=weaviate.auth.AuthApiKey(
-        os.getenv("WCS_DEMO_ADMIN_KEY")
-    ),  # Replace with your WCS key
+
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),  # Replace with your WCD URL
+    auth_credentials=Auth.api_key(
+        os.getenv("WCD_DEMO_ADMIN_KEY")
+    ),  # Replace with your WCD key
     headers=headers,
 )
 
 # START-ANY
 # Instantiate your client (not shown). e.g.:
 # headers = {"X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")}  # Replace with your OpenAI API key
-# client = weaviate.connect_to_wcs(..., headers=headers) or
+# client = weaviate.connect_to_weaviate_cloud(..., headers=headers) or
 # client = weaviate.connect_to_local(..., headers=headers)
 
 # END-ANY

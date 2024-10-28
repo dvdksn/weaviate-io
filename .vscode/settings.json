@@ -27,6 +27,7 @@
      "codebook",
      "Configurator",
      "contextionary",
+     "crossref",
      "CUDA",
      "Customizer",
      "davinci",
@@ -47,11 +48,16 @@
      "jinaai",
      "kmeans",
      "Krugman",
+     "kwarg",
      "Lucene",
+     "mellifera",
      "memtable",
+     "mixtral",
      "multimodal",
      "Neartext",
+     "octoai",
      "OIDC",
+     "Ollama",
      "openai",
      "pdfs",
      "plugable",
@@ -78,6 +84,7 @@
      "stopwords",
      "supersecuresecret",
      "textwrap",
+     "unvectorized",
      "upvote",
      "vectorizers",
      "vectorizes",
@@ -85,5 +92,10 @@
      "Verba",
      "xlarge",
      "xsum"
+    ],
+    "cSpell.ignoreWords": [
+     "EKZGU",
+     "LBRW",
+     "pcep"
     ]
 }

@@ -22,7 +22,7 @@ image: og/docs/more-resources.jpg
 <details>
   <summary>Answer</summary>
 
-> Other database systems like Elasticsearch rely on inverted indices, which makes search super fast. Weaviate also uses inverted indices to store data and values. But additionally, Weaviate is also a vector-native search database, which means that data is stored as vectors, which enables semantic search. This combination of data storage is unique, and enables fast, filtered and semantic search from end-to-end.
+> Other database systems like Elasticsearch rely on inverted indexes, which makes search super fast. Weaviate also uses inverted indexes to store data and values. But additionally, Weaviate is also a vector-native search database, which means that data is stored as vectors, which enables semantic search. This combination of data storage is unique, and enables fast, filtered and semantic search from end-to-end.
 
 </details>
 
@@ -31,7 +31,7 @@ image: og/docs/more-resources.jpg
 <details>
   <summary>Answer</summary>
 
-> Yes, we do - check out [Weaviate Cloud Services](/pricing).
+> Yes, we do - check out [Weaviate Cloud](/pricing).
 
 </details>
 
@@ -137,18 +137,10 @@ Yes. Each class itself acts like namespaces. Additionally, you can use the [mult
 <details>
   <summary>Answer</summary>
 
-> Yes, a UUID will be created if not specified.
+> Yes, Weaviate creates a UUID if one is not specified.
 
 </details>
 
-#### Q: Can I use Weaviate to create a traditional knowledge graph?
-
-<details>
-  <summary>Answer</summary>
-
-> Yes, you can! Weaviate support ontology, RDF-like definitions in its schema, and it runs out of the box. It is scalable, and the GraphQL API will allow you to query through your knowledge graph easily. But now you are here. We like to suggest you really try its semantic features. After all, you are creating a _knowledge_ graph 😉.
-
-</details>
 
 #### Q: Why does Weaviate have a schema and not an ontology?
 
@@ -175,7 +167,7 @@ Yes. Each class itself acts like namespaces. Additionally, you can use the [mult
 <details>
   <summary>Answer</summary>
 
-> Sometimes, users work with custom terminology, which often comes in the form of abbreviations or jargon. You can find more information on how to use the endpoint [here](/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-contextionary.md#extending-the-contextionary-v1modulestext2vec-contextionaryextensions)
+> Sometimes, users work with custom terminology, which often comes in the form of abbreviations or jargon. You can find more information on how to use the endpoint [here](/developers/weaviate/modules/text2vec-contextionary.md#extending-the-contextionary-v1modulestext2vec-contextionaryextensions)
 
 </details>
 
@@ -244,7 +236,7 @@ import HowToGetObjectCount from '/_includes/how.to.get.object.count.mdx';
 <details>
   <summary>Answer</summary>
 
-Weaviate makes use of ANN indices to serve vector searches. An ANN index is an approximate nearest neighbor index. The "approximate" part refers to an explicit recall-query-speed tradeoff. This trade-off is presented in detail in the [ANN benchmarks section](/developers/weaviate/benchmarks/ann.md#results). For example, a 98% recall for a given set of HNSW parameters means that 2% of results will not match the true nearest neighbors. What build parameters lead to what recall depends on the dataset used. The benchmark pages shows 4 different example datasets. Based on the characteristic of each dataset you can pick the one closest to your production load and draw conclusions about the expected recall for the respective build and query-time parameters.
+Weaviate makes use of ANN indexes to serve vector searches. An ANN index is an approximate nearest neighbor index. The "approximate" part refers to an explicit recall-query-speed tradeoff. This trade-off is presented in detail in the [ANN benchmarks section](/developers/weaviate/benchmarks/ann.md#results). For example, a 98% recall for a given set of HNSW parameters means that 2% of results will not match the true nearest neighbors. What build parameters lead to what recall depends on the dataset used. The benchmark pages shows 4 different example datasets. Based on the characteristic of each dataset you can pick the one closest to your production load and draw conclusions about the expected recall for the respective build and query-time parameters.
 
 Generally if you need a higher recall than the default parameters provide you with, you can use stronger parameters. This can either be done at build time (`efConstruction`, `maxConnections`) or at query time (`ef`). Roughly speaking, a higher `ef` value at query time means a more thorough search. It will have a slightly higher latency, but also lead to a slightly better recall.
 
@@ -281,7 +273,7 @@ If you need a higher search quality for a given limit you can consider the follo
 
 > Yes, Weaviate supports cursor-based iteration as well as pagination through a result set.
 >
-> To iterate through all objects, you can use the `after` operator with both [REST](../api/rest/objects.md#exhaustive-listing-using-a-cursor-after) and [GraphQL](../api/graphql/additional-operators.md#cursor-with-after).
+> To iterate through all objects, you can use the [`after` operator](../manage-data/read-all-objects.mdx).
 >
 > For pagination through a result set, you can use the `offset` and `limit` operators for GraphQL API calls. Take a look at [this page](../api/graphql/filters.md#pagination-with-offset) which describes how to use these operators, including tips on performance and limitations.
 
@@ -293,9 +285,9 @@ If you need a higher search quality for a given limit you can consider the follo
   <summary>Answer</summary>
 
 > Here are top 3 best practices for updating data:
-> 1. Use the [batch API](../api/rest/batch.md)
+> 1. Use the [batch API](../manage-data/import.mdx)
 > 2. Start with a small-ish batch size e.g. 100 per batch. Adjust up if it is very fast, adjust down if you run into timeouts
-> 3. If you have unidirectional relationships (e.g. `Foo -> Bar`.) it's easiest to first import all `Bar` objects, then import all `Foo` objects with the refs already set. If you have more complex relationships, you can also import the objects without references, then use the [`/v1/batch/references API`](../api/rest/batch.md) to set links between classes in arbitrary directions.
+> 3. If you have unidirectional relationships (e.g. `Foo -> Bar`.) it's easiest to first import all `Bar` objects, then import all `Foo` objects with the refs already set. If you have more complex relationships, you can also import the objects without references, then [add references](../manage-data/import.mdx#import-with-references) to set links between classes in arbitrary directions.
 
 </details>
 
@@ -306,7 +298,7 @@ If you need a higher search quality for a given limit you can consider the follo
 <details>
   <summary>Answer</summary>
 
-> [Yes!](/developers/weaviate/modules/other-modules/custom-modules.md)
+> [Yes!](/developers/weaviate/modules/custom-modules.md)
 
 </details>
 
@@ -315,7 +307,7 @@ If you need a higher search quality for a given limit you can consider the follo
 <details>
   <summary>Answer</summary>
 
-> Not at the moment. You can currently use the [available contextionaries](/developers/weaviate/modules/retriever-vectorizer-modules/text2vec-contextionary.md) in a variety of languages and use the transfer learning feature to add custom concepts if needed.
+> Not at the moment. You can currently use the [available contextionaries](/developers/weaviate/modules/text2vec-contextionary.md) in a variety of languages and use the transfer learning feature to add custom concepts if needed.
 
 </details>
 
@@ -453,12 +445,12 @@ More concretely: If you had to pick between a machine that has 16 GB of RAM and 
 
 </details>
 
-#### Q: My Weaviate setup is using more memory than what I think is reasonable. How can I debug this?
+#### Q: My Weaviate instance uses more memory than I think is reasonable. How can I debug this?
 
 <details>
   <summary>Answer</summary>
 
-> First of all, make sure your import runs with the latest version of Weaviate, since `v1.12.0`/`v1.12.1` fixed an issue where [too much data was written to disk](https://github.com/weaviate/weaviate/issues/1868) which then lead to unreasonable memory consumption after restarts. If this did not fix the issue yet, please see this post on [how to profile the memory usage of a Weaviate setup](https://stackoverflow.com/a/71793178/5322199).
+> Check that your import uses the latest version of Weaviate. `v1.12.0` and `v1.12.1` fix an [issue](https://github.com/weaviate/weaviate/issues/1868) where excessive amounts of data are written to disk, resulting in unreasonable memory consumption after restarts. If upgrading does not fix the issue, see this post on [how to profile memory use](https://stackoverflow.com/a/71793178/5322199).
 
 </details>
 
@@ -522,7 +514,7 @@ Read more on SIGQUIT [here](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGQUIT) 
 > Then, make a `docker-compose.yml` file with this new image. For example:
 >
 > ```yml
-> version: '3.4'
+>
 > services:
 >   weaviate:
 >     image: name-of-your-weaviate-image
@@ -556,6 +548,8 @@ docker compose up
 
 ## More questions?
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

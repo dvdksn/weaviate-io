@@ -21,7 +21,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 After you install `nvm`, use `nvm` to install Node.js.
 
 ```
-nvm install node
+nvm install
 ```
 
 By default, `nvm` installs the most recent version of Node.js. Install Node.js
@@ -29,7 +29,7 @@ By default, `nvm` installs the most recent version of Node.js. Install Node.js
 `weaviate.io` project dependencies.
 
 ```
-nvm install node 19.9.0
+nvm install 19.9.0
 nvm use 19.9.0
 ```
 
@@ -47,7 +47,7 @@ npm install --global yarn
 To contribute to this web site, first fork this repository and create a local
 copy to work on.
 
-1. Log into your Github account.
+1. Log into your GitHub account.
 2. Fork the upstream repository, https://github.com/weaviate/weaviate-io.
 3. Clone the repository to your local system.
 
@@ -199,7 +199,7 @@ import TSCode from '!!raw-loader!/_includes/code/howto/manage-data.create.ts';
     />
   </TabItem>
 
-  <TabItem value="js" label="JavaScript/TypeScript">
+  <TabItem value="js" label="JS/TS Client v2">
     <FilteredTextBlock
       text={TSCode}
       startMarker="// ValidateObject START"
@@ -234,7 +234,7 @@ import TabItem from '@theme/TabItem';
     ```
 
 </TabItem>
-<TabItem value="js" label="JavaScript/TypeScript">
+<TabItem value="js" label="JS/TS Client v2">
 
     ```
     import weaviate from 'weaviate-ts-client';

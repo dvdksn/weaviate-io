@@ -7,33 +7,6 @@ image: og/docs/configuration.jpg
 
 Vector indexes facilitate efficient, vector-first data storage and retrieval.
 
-## Multiple vectors
-
-import MultiVectorSupport from '/_includes/multi-vector-support.mdx';
-
-<MultiVectorSupport />
-
-## Index configuration parameters
-
-Use these parameters to configure the index type and their properties. They can be set in the [collection configuration](../../manage-data/collections.mdx#set-vector-index-type).
-
-| Parameter | Type | Default | Details |
-| :-- | :-- | :-- | :-- |
-| `vectorIndexType` | string | `hnsw` | Optional. The index type - can be `hnsw` or `flat`. |
-| `vectorIndexConfig` | object | - | Optional. Set parameters that are specific to the vector index type. |
-
-<details>
-  <summary>How to select the index type</summary>
-
-Generally, the `hnsw` index type is recommended for most use cases. The `flat` index type is recommended for use cases where the data the number of objects per index is low, such as in multi-tenancy cases.
-
-See [this section](../../concepts/vector-index.md#which-vector-index-is-right-for-me) for more information about the different index types and how to choose between them.
-
-</details>
-
-If faster import speeds are desired, [asynchronous indexing](#asynchronous-indexing) allows de-coupling of indexing from object creation.
-
-
 ## HNSW indexes
 
 HNSW indexes are scalable and super fast at query time, but HNSW algorithms are costly when you add data during the index building process.
@@ -48,14 +21,51 @@ Some HNSW parameters are mutable, but others cannot be modified after you create
 | `distance` | string | `cosine` | No | Distance metric. The metric that measures the distance between two arbitrary vectors. For available distance metrics, see [supported distance metrics](/developers/weaviate/config-refs/distances.md). |
 | `ef` | integer | -1 | Yes |  Balance search speed and recall. `ef` is the size of the dynamic list that the HNSW uses during search. Search is more accurate when `ef` is higher, but it is also slower. `ef` values greater than 512 show diminishing improvements in recall.<br/><br/>Dynamic `ef`. Weaviate automatically adjusts the `ef` value and creates a dynamic `ef` list when `ef` is set to -1. For more details, see [dynamic ef](../../concepts/vector-index.md#dynamic-ef). |
 | `efConstruction` | integer | 128 | No | Balance index search speed and build speed. A high `efConstruction` value means you can lower your `ef` settings, but importing is slower.<br/><br/>`efConstruction` must be greater than 0. |
-| `maxConnections` | integer | 64 | No | Maximum number of connections per element. `maxConnections` is the connection limit per layer for layers above the zero layer. The zero layer can have (2 * maxConnections) connections. <br/><br/> `maxConnections` must be greater than 0. |
+| `maxConnections` | integer | 32 | No | Maximum number of connections per element. `maxConnections` is the connection limit per layer for layers above the zero layer. The zero layer can have (2 * maxConnections) connections. <br/><br/> `maxConnections` must be greater than 0. |
 | `dynamicEfMin` | integer | 100 | Yes | *New in `v1.10.0`.* <br/><br/> Lower bound for [dynamic `ef`](../../concepts/vector-index.md#dynamic-ef). Protects against a creating search list that is too short.<br/><br/>This setting is only used when `ef` is -1. |
 | `dynamicEfMax` | integer | 500 | Yes | *New in `v1.10.0`.* <br/><br/> Upper bound for [dynamic `ef`](../../concepts/vector-index.md#dynamic-ef). Protects against creating a search list that is too long. <br/><br/>If `dynamicEfMax` is higher than the limit, `dynamicEfMax` does not have any effect. In this case, `ef` is the limit.<br/><br/>This setting is only used when `ef` is -1. |
-| `dynamicEfFactor` | integer | 8 | Yes | *New in `v1.10.0`.* <br/><br/> Multiplier for [dynamic `ef`](../../concepts/vector-index.md#dynamic-ef). Sets the potential length of the search list. <br/><br/>This setting is only used when `ef` is -1. |
-| `flatSearchCutoff` | integer | 40000 | Yes | Optional. Threshold for the [flat-search cutoff](/developers/weaviate/concepts/prefiltering.md#flat-search-cutoff). To force a vector index search, set `"flatSearchCutoff": 0`. |
+| `dynamicEfFactor` | integer | 8 | Yes | *Added in `v1.10.0`.* <br/><br/> Multiplier for [dynamic `ef`](../../concepts/vector-index.md#dynamic-ef). Sets the potential length of the search list. <br/><br/>This setting is only used when `ef` is -1. |
+| `filterStrategy` | string | `sweeping` | Yes | Added in `v1.27.0`. The filter strategy to use for filtering the search results. The filter strategy can be set to `sweeping` or `acorn`. <br/><br/> - `sweeping`: The default filter strategy. <br/> - `acorn`: Uses Weaviate's ACORN implementation. [Read more](../../concepts/filtering.md#filter-strategy) |
+| `flatSearchCutoff` | integer | 40000 | Yes | Optional. Threshold for the [flat-search cutoff](/developers/weaviate/concepts/filtering.md#flat-search-cutoff). To force a vector index search, set `"flatSearchCutoff": 0`. |
 | `skip` | boolean | `false` | No | When true, do not index the collection. <br/><br/> Weaviate decouples vector creation and vector storage. If you skip vector indexing, but a vectorizer is configured (or a vector is provided manually), Weaviate logs a warning each import. <br/><br/> To skip indexing and vector generation, set `"vectorizer": "none"` when you set `"skip": true`. <br/><br/> See [When to skip indexing](../../concepts/vector-index.md#when-to-skip-indexing). |
 | `vectorCacheMaxObjects`| integer | `1e12` | Yes | Maximum number of objects in the memory cache. By default, this limit is set to one trillion (`1e12`) objects when a new collection is created. For sizing recommendations, see [Vector cache considerations](../../concepts/vector-index.md#vector-cache-considerations). |
 | `pq` | object | -- | Yes | Enable and configure [product quantization (PQ)](/developers/weaviate/concepts/vector-index.md#hnsw-with-product-quantizationpq) compression. <br/><br/> PQ assumes some data has already been loaded. You should have 10,000 to 100,000 vectors per shard loaded before you enable PQ. <br/><br/> For PQ configuration details, see [PQ configuration parameters](#pq-configuration-parameters). |
+
+### Database parameters for HNSW
+
+Note that some database-level parameters are available to configure HNSW indexing behavior.
+
+- `PERSISTENCE_HNSW_MAX_LOG_SIZE` is a database-level parameter that sets the maximum size of the HNSW write-ahead-log. The default value is `500MiB`.
+
+Increase this value to improve efficiency of the compaction process, but be aware that this will increase the memory usage of the database. Conversely, decreasing this value will reduce memory usage but may slow down the compaction process.
+
+Preferably, the `PERSISTENCE_HNSW_MAX_LOG_SIZE` should set to a value close to the size of the HNSW graph.
+
+### Tombstone cleanup parameters
+
+:::info Environment variable availability
+
+- `TOMBSTONE_DELETION_CONCURRENCY` is available in `v1.24.0` and up.
+- `TOMBSTONE_DELETION_MIN_PER_CYCLE` and `TOMBSTONE_DELETION_MAX_PER_CYCLE` are available in `v1.24.15` / `v1.25.2` and up.
+
+:::
+
+Tombstones are records that mark deleted objects. In an HNSW index, tombstones are regularly cleaned up, triggered periodically by the `cleanupIntervalSeconds` parameter.
+
+As the index grows in size, the cleanup process may take longer to complete and require more resources. For very large indexes, this may cause performance issues.
+
+To control the number of tombstones deleted per cleanup cycle and prevent performance issues, set the [`TOMBSTONE_DELETION_MAX_PER_CYCLE` and `TOMBSTONE_DELETION_MIN_PER_CYCLE` environment variables](../env-vars.md#general).
+
+- Set `TOMBSTONE_DELETION_MIN_PER_CYCLE` to prevent occurrences of unnecessary cleanup cycles.
+- Set `TOMBSTONE_DELETION_MAX_PER_CYCLE` to prevent the cleanup process from taking too long and consuming too many resources.
+
+As an example, for a cluster with 300 million objects per shard, a `TOMBSTONE_DELETION_MIN_PER_CYCLE` value of 1000000 (1 million) and a `TOMBSTONE_DELETION_MAX_PER_CYCLE` value of 10000000 (10 million) may be good starting points.
+
+You can also set the `TOMBSTONE_DELETION_CONCURRENCY` environment variable to limit the number of threads used for tombstone cleanup. This can help prevent prevent the cleanup process from unnecessarily consuming too many resources, or the cleanup process from taking too long.
+
+The default value for `TOMBSTONE_DELETION_CONCURRENCY` is set to half the number of CPU cores available to Weaviate.
+
+In a cluster with a large number of cores, you may want to set `TOMBSTONE_DELETION_CONCURRENCY` to a lower value to prevent the cleanup process from consuming too many resources. Conversely, in a cluster with a small number of cores and a large number of deletions, you may want to set `TOMBSTONE_DELETION_CONCURRENCY` to a higher value to speed up the cleanup process.
 
 ### PQ configuration parameters
 
@@ -86,7 +96,7 @@ This is a sample of collection that shows the [data schema](/developers/weaviate
     "skip": false,
     "ef": 100,
     "efConstruction": 128,
-    "maxConnections": 64,
+    "maxConnections": 32,
   }
 }
 ``` -->
@@ -132,7 +142,7 @@ Flat indexes are recommended for use cases where the number of objects per index
 | Parameter | Type | Default | Changeable | Details |
 | :-- | :-- | :-- | :-- | :-- |
 | `vectorCacheMaxObjects`| integer | `1e12` | Yes | Maximum number of objects in the memory cache. By default, this limit is set to one trillion (`1e12`) objects when a new collection is created. For sizing recommendations, see [Vector cache considerations](../../concepts/vector-index.md#vector-cache-considerations). |
-| `bq` | object | -- | No | Enable and configure [binary quantization (BQ)](../../concepts/vector-index.md#binary-quantization) compression. <br/><br/> For BQ configuration details, see [BQ configuration parameters](#bq-configuration-parameters). |
+| `bq` | object | -- | No | Enable and configure [binary quantization (BQ)](../../concepts/vector-quantization.md#binary-quantization) compression. <br/><br/> For BQ configuration details, see [BQ configuration parameters](#bq-configuration-parameters). |
 
 ### BQ configuration parameters
 
@@ -144,11 +154,59 @@ Configure `bq` with these parameters.
 | `rescoreLimit` | integer | -1 | The minimum number of candidates to fetch before rescoring. |
 | `cache` | boolean | `false` | Whether to use the vector cache. |
 
+## Dynamic indexes
+
+:::caution Experimental feature
+Available starting in `v1.25`. Dynamic indexing is an experimental feature. Use with caution.
+:::
+
+import DynamicAsyncRequirements from '/_includes/dynamic-index-async-req.mdx';
+
+<DynamicAsyncRequirements/>
+
+Using the `dynamic` index will initially create a flat index and once the number of objects exceeds a certain threshold (by default 10,000 objects) it will automatically switch you over to an HNSW index.
+
+This is only a one-way switch that converts a flat index to a HNSW, the index does not support changing back to a flat index even if the object count goes below the threshold due to deletion.
+
+The goal of `dynamic` indexing is to shorten latencies during query time at the cost of a larger memory footprint.
+
+### Dynamic index parameters
+
+| Parameter | Type | Default | Details |
+| :-- | :-- | :-- | :-- |
+| `distance` | string | `cosine` | Distance metric. The metric that measures the distance between two arbitrary vectors. |
+| `hnsw` | object | default HNSW | [HNSW index configuration](#hnsw-index-parameters) to be used. |
+| `flat` | object | default Flat | [Flat index configuration](#flat-indexes) to be used. |
+| `threshold` | integer | 10000 | Threshold object count at which `flat` to `hnsw` conversion happens |
+
+## Index configuration parameters
+
+:::caution Experimental feature
+Available starting in `v1.25`. Dynamic indexing is an experimental feature. Use with caution.
+:::
+
+Use these parameters to configure the index type and their properties. They can be set in the [collection configuration](../../manage-data/collections.mdx#set-vector-index-type).
+
+| Parameter | Type | Default | Details |
+| :-- | :-- | :-- | :-- |
+| `vectorIndexType` | string | `hnsw` | Optional. The index type - can be `hnsw`, `flat` or `dynamic`. |
+| `vectorIndexConfig` | object | - | Optional. Set parameters that are specific to the vector index type. |
+
+<details>
+  <summary>How to select the index type</summary>
+
+Generally, the `hnsw` index type is recommended for most use cases. The `flat` index type is recommended for use cases where the data the number of objects per index is low, such as in multi-tenancy cases. You can also opt for the `dynamic` index which will initially configure a `flat` index and once the object count exceeds a specified threshold it will automatically convert to an `hnsw` index.
+
+See [this section](../../concepts/vector-index.md#which-vector-index-is-right-for-me) for more information about the different index types and how to choose between them.
+
+</details>
+
+If faster import speeds are desired, [asynchronous indexing](#asynchronous-indexing) allows de-coupling of indexing from object creation.
 
 ## Asynchronous indexing
 
 :::caution Experimental
-Available starting in `v1.22`. This is an experimental feature. Please use with caution.
+Available starting in `v1.22`. This is an experimental feature. Use with caution.
 :::
 
 Starting in Weaviate `1.22`, you can use asynchronous indexing by opting in.
@@ -160,7 +218,6 @@ To enable asynchronous indexing, set the `ASYNC_INDEXING` environment variable t
 
 ```yaml
 ---
-version: '3.4'
 services:
   weaviate:
     command:
@@ -181,7 +238,7 @@ services:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       DEFAULT_VECTORIZER_MODULE: 'text2vec-openai'
-      ENABLE_MODULES: 'text2vec-cohere,text2vec-huggingface,text2vec-openai,text2vec-palm,generative-cohere,generative-openai,generative-palm'
+      ENABLE_MODULES: 'text2vec-cohere,text2vec-huggingface,text2vec-openai,text2vec-google,generative-cohere,generative-openai,generative-google'
       CLUSTER_HOSTNAME: 'node1'
       AUTOSCHEMA_ENABLED: 'false'
       ASYNC_INDEXING: 'true'
@@ -190,7 +247,7 @@ services:
 
 </details>
 
-To get the index status, call the [node status](/developers/weaviate/api/rest/nodes.md#usage) endpoint.
+To get the index status, check the [node status](/developers/weaviate/config-refs/nodes) endpoint.
 
 <details>
   <summary><code>Node status</code> example usage</summary>
@@ -236,15 +293,21 @@ The `vectorQueueLength` field will show the number of remaining objects to be in
   ]
 }
 ```
-
 </details>
 
+## Multiple vectors (named vectors)
 
-:::info Related pages
+import MultiVectorSupport from '/_includes/multi-vector-support.mdx';
+
+<MultiVectorSupport />
+
+## Related pages
+
 - [Concepts: Indexing](../../concepts/indexing.md)
 - [Concepts: Vector Indexing](../../concepts/vector-index.md)
-:::
 
-import DocsMoreResources from '/_includes/more-resources-docs.md';
+## Questions and feedback
 
-<DocsMoreResources />
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

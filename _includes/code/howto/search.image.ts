@@ -38,12 +38,12 @@ console.log(fileToBase64('./your-image-here.jpg'))
 // ===== Search by base64 representation =====
 // ===========================================
 
-import weaviate from 'weaviate-client/node';
+import weaviate from 'weaviate-client';
 import fetch from 'node-fetch';
 import fs from 'fs';
 
-const client = await weaviate.connectToWCS(
-  'WCS-URL',
+const client = await weaviate.connectToWeaviateCloud(
+  'WCD-URL',
  {
    authCredentials: new weaviate.ApiKey('WEAVIATE-API-KEY'),
    headers: {
@@ -58,53 +58,53 @@ const imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Welc
 const response = await fetch(imageUrl);
 const content = await response.buffer();
 
-/*
+{
 // START search with base64
-const base64String = 'SOME_BASE_64_REPRESENTATION';
-// END search with base64
-*/
-// START search with base64
-
 // Perform query
 const myCollection = client.collections.get('Dog');
 
-const result = await myCollection.query.nearImage(base64String, 
-     {
-       returnProperties: ['breed'],
-       limit: 1,
-     })
+// highlight-start
+const base64String = 'SOME_BASE_64_REPRESENTATION';
+// highlight-end
+
+// highlight-start
+const result = await myCollection.query.nearImage(base64String, {
+// highlight-end
+  returnProperties: ['breed'],
+  limit: 1,
+  // targetVector: 'vector_name' // required when using multiple named vectors
+})
 
 console.log(JSON.stringify(result.objects, null, 2));
 // END search with base64
 
 // Tests
-assert.deepEqual(result.data['Get']['Dog'], [{ 'breed': 'Corgi' }]);
-
+// assert.deepEqual(result.data['Get']['Dog'], [{ 'breed': 'Corgi' }]);
+}
 
 // ====================================
 // ===== Search by image filename =====
 // ====================================
-
 fs.writeFileSync('image.jpg', content);
+{
 // START ImageFileSearch
-
-// highlight-start
-// Read the file into a base-64 encoded string
-const contentsBase64 = await fs.promises.readFile('image.jpg', { encoding: 'base64' });
-// highlight-end
-
-// Query based on base64-encoded image
 const myCollection = client.collections.get('Dog');
 
-const result = await myCollection.query.nearImage(contentsBase64, 
-     {
-       returnProperties: ['breed'],
-       limit: 1,
-     })
+// highlight-start
+// Read the file
+const image = await fs.promises.readFile('image.jpg');
+// highlight-end
+
+// Query based on the image content
+const result = await myCollection.query.nearImage(image, {
+  returnProperties: ['breed'],
+  limit: 1,
+  // targetVector: 'vector_name' // required when using multiple named vectors
+})
 
 console.log(JSON.stringify(result.objects, null, 2));
 // END ImageFileSearch
-
+}
 
 // Tests
 assert.deepEqual(result.data['Get']['Dog'], [{ 'breed': 'Corgi' }]);

@@ -1,33 +1,35 @@
-# WCSInstantiation
+# WCDInstantiation
 import weaviate
+from weaviate.classes.init import Auth
 import os
 
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),  # Replace with your WCS URL
-    auth_credentials=weaviate.auth.AuthApiKey(
-        os.getenv("WCS_DEMO_ADMIN_KEY")
-    ),  # Replace with your WCS key
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),  # Replace with your WCD URL
+    auth_credentials=Auth.api_key(
+        os.getenv("WCD_DEMO_ADMIN_KEY")
+    ),  # Replace with your WCD key
 )
-# END WCSInstantiation
+# END WCDInstantiation
 
 client.close()
 
-# WCSAPIKeyInstantiation
+# WCDAPIKeyInstantiation
 import weaviate
+from weaviate.classes.init import Auth
 import os
 
 headers = {
-    "X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")
-}  # Replace with your OpenAI API key
+    "X-Cohere-Api-Key": os.getenv("COHERE_APIKEY")
+}  # Replace with your Cohere API key
 
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),  # Replace with your WCS URL
-    auth_credentials=weaviate.auth.AuthApiKey(
-        os.getenv("WCS_DEMO_ADMIN_KEY")
-    ),  # Replace with your WCS key
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),  # Replace with your WCD URL
+    auth_credentials=Auth.api_key(
+        os.getenv("WCD_DEMO_ADMIN_KEY")
+    ),  # Replace with your WCD key
     headers=headers,
 )
-# END WCSAPIKeyInstantiation
+# END WCDAPIKeyInstantiation
 
 client.close()
 
@@ -42,8 +44,8 @@ import weaviate
 import os
 
 headers = {
-    "X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY")
-}  # Replace with your OpenAI API key
+    "X-Cohere-Api-Key": os.getenv("COHERE_APIKEY")
+}  # Replace with your Cohere API key
 
 client = weaviate.connect_to_local(headers=headers)
 # END DockerAPIKeyInstantiation
@@ -132,18 +134,19 @@ client.close()
 
 # TryFinallyCloseDemo
 import weaviate
+from weaviate.classes.init import Auth
 import os
 
 # END TryFinallyCloseDemo
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),  # Replace with your WCS URL
-    auth_credentials=weaviate.auth.AuthApiKey(
-        os.getenv("WCS_DEMO_ADMIN_KEY")
-    ),  # Replace with your WCS key
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=os.getenv("WCD_DEMO_URL"),  # Replace with your WCD URL
+    auth_credentials=Auth.api_key(
+        os.getenv("WCD_DEMO_ADMIN_KEY")
+    ),  # Replace with your WCD key
 )
 # TryFinallyCloseDemo
 # Instantiate your client (not shown). e.g.:
-# client = weaviate.connect_to_wcs(...) or
+# client = weaviate.connect_to_weaviate_cloud(...) or
 # client = weaviate.connect_to_local(...)
 
 try:

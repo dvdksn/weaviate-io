@@ -53,7 +53,7 @@ This privacy policy was most recently amended in** February 2024 **and this vers
 
 <br></br>
 
-Weaviate is an open-source vector database that permits you to store data objects and vector embeddings. You may use our Weaviate vector database in different manners. You may use our open-source vector database technology yourself by deploying it within your own self-managed environment. You may also simplify your cloud management with our cloud solution called Weaviate Cloud Services, which we offer serverless (referred to as our “**Serverless service**”) or inside your customer managed VPC (referred to as our “**BYOC service**”).
+Weaviate is an open-source vector database that permits you to store data objects and vector embeddings. You may use our Weaviate vector database in different manners. You may use our open-source vector database technology yourself by deploying it within your own self-managed environment. You may also simplify your cloud management with our cloud solution called Weaviate Cloud, which we offer serverless (referred to as our “**Serverless service**”) or inside your customer managed VPC (referred to as our “**BYOC service**”).
 
 <br></br>
 
@@ -134,7 +134,7 @@ Below, you can read more about the cookies we use and why we use them.
 <br></br>
 
 - Essential cookies: These cookies are strictly necessary to provide you with services available through our websites.
-  
+
 - Performance cookies: These cookies are used to enhance the performance and functionality of our websites but are non-essential to their use. However, without these cookies, certain functionality may become unavailable.
 
 - Analytics cookies: These cookies collect information that is used either in aggregate form to help us understand how our websites are being used or how effective our marketing campaigns are, or to help us customize our websites for you.
@@ -219,7 +219,7 @@ Kindly note that our websites may contain links to websites of third parties. Th
 <br></br>
 
 - [YouTube](https://www.youtube.com/t/terms);
-- [Github](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement);
+- [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement);
 - [Slack](https://slack.com/trust/privacy/privacy-policy);
 - [Discourse](https://www.discourse.org/privacy);
 - [AWS](https://aws.amazon.com/privacy/);

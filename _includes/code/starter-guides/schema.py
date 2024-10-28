@@ -29,6 +29,10 @@ try:
                 name="answer",
                 data_type=wvc.config.DataType.TEXT,
             ),
+            wvc.config.Property(
+                name="category",
+                data_type=wvc.config.DataType.TEXT,
+            )
         ]
     )
 
@@ -107,9 +111,9 @@ try:
         ],
         # highlight-start
         # Configure the vector index
-        vector_index_config=wvc.config.Configure.VectorIndex.hnsw(
+        vector_index_config=wvc.config.Configure.VectorIndex.hnsw(  # Or `flat` or `dynamic`
             distance_metric=wvc.config.VectorDistances.COSINE,
-            quantizer=wvc.config.Configure.VectorIndex.Quantizer.pq(segments=192),
+            quantizer=wvc.config.Configure.VectorIndex.Quantizer.bq(),
         ),
         # Configure the inverted index
         inverted_index_config=wvc.config.Configure.inverted_index(

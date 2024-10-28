@@ -4,8 +4,8 @@ import fetch from 'node-fetch';
 
 const client: WeaviateClient = weaviate.client({
   scheme: 'https',
-  host: 'some-endpoint.weaviate.cloud',  // Replace with your endpoint
-  apiKey: new ApiKey('YOUR-WEAVIATE-API-KEY'),  // Replace w/ your Weaviate instance API key
+  host: 'WEAVIATE_INSTANCE_URL,  // Replace with your Weaviate endpoint
+  apiKey: new ApiKey('YOUR-WEAVIATE-API-KEY'),  // Replace with your Weaviate instance API key
 });
 
 // Class definition object. Weaviate's autoschema feature will infer properties when importing.
@@ -29,7 +29,7 @@ type JeopardyItem = {
   Vector: number[],
 }
 async function getJsonData(): Promise<JeopardyItem[]> {
-  const file = await fetch('https://raw.githubusercontent.com/weaviate-tutorials/quickstart/main/data/jeopardy_tiny+vectors.json');
+  const file = await fetch('https://raw.githubusercontent.com/weaviate-tutorials/quickstart/main/data/jeopardy_tiny_with_vectors_all-OpenAI-ada-002.json');
   return file.json() as unknown as JeopardyItem[];
 }
 
@@ -45,7 +45,7 @@ async function importQuestionsWithVectors() {
   for (const item of data) {
     // Construct the object to add to the batch
     const obj = {
-      class: className,
+      class: "Question",
       properties: {
         answer: item.Answer,
         question: item.Question,

@@ -31,7 +31,7 @@ To run the server locally with the OpenAI module.
 
 The default configuration is `local-development` which will run the server locally with the `text2vec-contextionary` and `backup-filesystem` modules.
 
-You can also create your own configuration. For instance, you can clone an entry (`local-all-openai-cohere-palm` is a good start) and add the required [environment variables](../../weaviate/config-refs/env-vars.md).
+You can also create your own configuration. For instance, you can clone an entry (`local-all-openai-cohere-google` is a good start) and add the required [environment variables](../../weaviate/config-refs/env-vars.md).
 
 
 ## Running with Docker
@@ -73,11 +73,16 @@ tools/dev/restart_dev_environment.sh --qna && ./tools/dev/run_dev_server.sh loca
 
 The above commands are subject to change as we add more modules and require specific combinations for local testing. You can always inspect [restart_dev_environment.sh](https://github.com/weaviate/weaviate/blob/master/tools/dev/restart_dev_environment.sh) and [run_dev_server.sh](https://github.com/weaviate/weaviate/blob/master/tools/dev/run_dev_server.sh) to see which options are available. The first option without any arguments is always guaranteed to work.
 
-To make queries from a web interface, use the [WCS console](https://console.weaviate.cloud) to connect to `localhost:8080`.
-
+To make queries from a web interface, use the [WCD console](https://console.weaviate.cloud) to connect to `localhost:8080`.
 
 ## More Resources
 
 import ContributorGuideMoreResources from '/_includes/more-resources-contributor-guide.md';
 
 <ContributorGuideMoreResources />
+
+## Questions and feedback
+
+import DocsFeedback from '/_includes/docs-feedback.mdx';
+
+<DocsFeedback/>

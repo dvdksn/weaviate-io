@@ -16,7 +16,8 @@ client = weaviate.connect_to_local(
         "X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY"),
         # END GenerativeOpenAI
         # START GenerativeGoogle
-        "X-PaLM-Api-Key": "YOUR_PALM_APIKEY",
+        "X-Google-Vertex-Api-Key": "YOUR-VERTEX-API-KEY",
+        "X-Google-Studio-Api-Key": "YOUR-AI-STUDIO-API-KEY",
         # END GenerativeGoogle
         # START GenerativeHuggingface
         "X-HuggingFace-Api-Key": "YOUR_HUGGINGFACE_APIKEY",
@@ -31,11 +32,18 @@ client = weaviate.connect_to_local(
 # END-ANY
 client.close()
 
-client = weaviate.connect_to_wcs(
-    cluster_url=os.getenv("WCS_DEMO_URL"),
-    auth_credentials=weaviate.auth.AuthApiKey(os.getenv("WCS_DEMO_RO_KEY")),
+from weaviate.classes.init import Auth
+
+# Best practice: store your credentials in environment variables
+wcd_url = os.environ["WCD_DEMO_URL"]
+wcd_api_key = os.environ["WCD_DEMO_RO_KEY"]
+openai_api_key = os.environ["OPENAI_APIKEY"]
+
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=wcd_url,
+    auth_credentials=Auth.api_key(wcd_api_key),
     headers={
-        "X-OpenAI-Api-Key": os.getenv("OPENAI_APIKEY"),
+        "X-OpenAI-Api-Key": openai_api_key,
     }
 )
 

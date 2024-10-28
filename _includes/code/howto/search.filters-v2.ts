@@ -253,7 +253,7 @@ result = await client.graphql
       {
         path: ['answer'],
         operator: 'Like',
-        valueText: '*nest*',
+        valueText: '*bird*',
       },
       {
         operator: 'Or',
@@ -404,6 +404,26 @@ for (const question of result.data.Get.JeopardyQuestion) {
   assert.ok(question.answer.length > 20);
 }
 
+
+// ===================================================
+// ===== Filters using property null state =====
+// ===================================================
+
+// FilterByPropertyNullState
+result = await client.graphql
+  .get()
+  .withClassName('JeopardyQuestion')
+  .withFields('points')
+  .withWhere({
+    operator: 'IsNull',
+    path: ['points'],
+    valueBoolean: true,
+  })
+  .withLimit(3)
+  .do();
+
+console.log(JSON.stringify(result, null, 2));
+// END FilterByPropertyNullState
 
 
 // ===================================================

@@ -1,4 +1,4 @@
-// Starter-guides: Generative search (RAG)
+// Starter-guides: Retreval augmented generation (RAG)
 
 import assert from 'assert';
 
@@ -9,16 +9,14 @@ import assert from 'assert';
 // Instantiation
 import weaviate, { WeaviateClient } from 'weaviate-client';
 
-const client: WeaviateClient = await weaviate.connectToWCS(
-     'https://some-endpoint.weaviate.network',  // Replace with your endpoint
-    {
-      authCredentials: new weaviate.ApiKey('YOUR-WEAVIATE-API-KEY'),  // Replace with your Weaviate instance API key
-      headers: {
-        'X-OpenAI-Api-Key': process.env.OPENAI_API_KEY || '',  // Replace with your inference API key
-      }
-    } 
-  )
-
+const client: WeaviateClient = await weaviate.connectToWeaviateCloud(
+    'https://WEAVIATE_INSTANCE_URL',  // Replace with your Weaviate endpoint
+  {
+    authCredentials: new weaviate.ApiKey('YOUR-WEAVIATE-API-KEY'),  // Replace with your Weaviate instance API key
+    headers: {
+      'X-OpenAI-Api-Key': process.env.OPENAI_API_KEY || '',  // Replace with your inference API key
+    }
+});
 // END Instantiation
 
 let tempResponse;
@@ -28,16 +26,16 @@ let tempResponse;
 
 // ChunkText
 async function downloadAndChunk(srcUrl: string, chunkSize: number, overlapSize: number) {
-    const response = await fetch(srcUrl);
-    const sourceText = await response.text();
-    const textWords = sourceText.replace(/\s+/g, ' ').split(' ');
+  const response = await fetch(srcUrl);
+  const sourceText = await response.text();
+  const textWords = sourceText.replace(/\s+/g, ' ').split(' ');
 
-    let chunks = [];
-    for (let i = 0; i < textWords.length; i += chunkSize) {
-        let chunk = textWords.slice(Math.max(i - overlapSize, 0), i + chunkSize).join(' ');
-        chunks.push(chunk);
-    }
-    return chunks;
+  let chunks = [];
+  for (let i = 0; i < textWords.length; i += chunkSize) {
+      let chunk = textWords.slice(Math.max(i - overlapSize, 0), i + chunkSize).join(' ');
+      chunks.push(chunk);
+  }
+  return chunks;
 }
 
 const proGitChapterUrl = 'https://raw.githubusercontent.com/progit/progit2/main/book/01-introduction/sections/what-is-git.asc';
@@ -49,41 +47,37 @@ assert(typeof chunks[0] === 'string', 'Chunk is not a string')
 
 
 // CreateClass
-  const schemaDefinition = {
-    name: 'GitBookChunk',
-    properties: [
-      {
-        name: 'Chunk',
-        dataType: 'text' as const,
-      },
-      {
-        name: 'chapter_title',
-        dataType: 'text' as const,
-      },
-      {
-        name: 'chunk_index',
-        dataType: 'int' as const,
-      }
-    ],
-      // highlight-start
-    vectorizer: weaviate.configure.vectorizer.text2VecOpenAI(),
-    generative: weaviate.configure.generative.openAI()
-      // highlight-end
-
-  }
-
-
+const schemaDefinition = {
+  name: 'GitBookChunk',
+  properties: [
+    {
+      name: 'Chunk',
+      dataType: 'text' as const,
+    },
+    {
+      name: 'chapter_title',
+      dataType: 'text' as const,
+    },
+    {
+      name: 'chunk_index',
+      dataType: 'int' as const,
+    }
+  ],
+    // highlight-start
+  vectorizers: weaviate.configure.vectorizer.text2VecOpenAI(),
+  generative: weaviate.configure.generative.openAI()
+    // highlight-end
+}
 // END CreateClass
 
-const classExists = await client.collections.exists(`GitBookChunk`);
+const collectionExists = await client.collections.exists(`GitBookChunk`);
 
-if (classExists) {
+if (collectionExists) {
   await client.collections.delete(`GitBookChunk`)
-  .do();
 }
 // CreateClass
 
-const newCollection = await client.collections.create(schemaDefinition) 
+const newCollection = await client.collections.create(schemaDefinition)
 console.log('We have a new class!', newCollection['name']);
 
 // END CreateClass
@@ -95,33 +89,29 @@ assert(tempResponse == true, "The 'GitBookChunk' class does not exist")
 // ImportData
 const gitCollection = client.collections.get('GitBookChunkTest');
 
-  async function importData(chunkData: Array<string>) {
-    
-    const list:Array<any> = [];
+async function importData(chunkData: Array<string>) {
+  const list:Array<any> = [];
 
-    for (const [index, chunk] of chunkData.entries()) {
-      const obj = {
-        class: 'GitBookChunk',
-        properties: {
-          chunk: chunk,
-          chunk_index: index,
-          chapter_title: 'What is Git',
-        },
-      };
+  for (const [index, chunk] of chunkData.entries()) {
+    const obj = {
+      properties: {
+        chunk: chunk,
+        chunk_index: index,
+        chapter_title: 'What is Git',
+      },
+    };
 
-      list.push(obj);
-      }
-    const result = await gitCollection.data.insertMany(list)
-      console.log('just bulk insertedß',result);
-  
-  };
-  
-  await importData(chunks);
+    list.push(obj);
+    }
+  const result = await gitCollection.data.insertMany(list)
+  console.log('just bulk inserted',result);
+};
+
+await importData(chunks);
 // END ImportData
 
 // CountObjects
 const objectCount =  await gitCollection.aggregate.overAll()
-
 console.log(JSON.stringify(objectCount.totalCount));
 
 // END CountObjects
@@ -138,15 +128,15 @@ const haikuResponse = await gitCollection.generate.fetchObjects({
 })
 
 if (haikuResponse) {
-for (const result of haikuResponse.objects) {
-  console.log(`\n===== Object index: [${result.properties['chunk_index']}] =====`)
-  console.log(result.generated)
-}
+  for (const result of haikuResponse.objects) {
+    console.log(`\n===== Object index: [${result.properties['chunk_index']}] =====`)
+    console.log(result.generated)
+  }
 }
 // END SinglePrompt
 
-for (const r of haikuResponse.data.Get['GitBookChunk']) {
-  assert(typeof r._additional.generate.singleResult === 'string', 'The generated object is not a string')
+for (const r of haikuResponse.objects) {
+  assert(typeof r.generated === 'string', 'The generated object is not a string')
 }
 
 
@@ -165,25 +155,20 @@ assert(typeof triviaResponse.generated === 'string', 'The generated object is no
 
 
 // NearTextGroupedTask
-const searchResponse = await gitCollection.generate.nearText(
-  "states of git",
-  {
+const searchResponse = await gitCollection.generate.nearText("states of git",{
   groupedTask: "Write a trivia tweet based on this text. Use emojis and make it succinct and cute."
 },{
   limit: 2,
 })
 
 console.log('concept',JSON.stringify(searchResponse.generated, null, 2));
-
 // END NearTextGroupedTask
 
 assert(typeof searchResponse.generated === 'string', 'The generated object is not a string')
 
 
 // SecondNearTextGroupedTask
-const anotherSearchResponse = await gitCollection.generate.nearText(
-  "how git saves data",
-  {
+const anotherSearchResponse = await gitCollection.generate.nearText("how git saves data",{
   groupedTask: "Write a trivia tweet based on this text. Use emojis and make it succinct and cute."
 },{
   limit: 2,

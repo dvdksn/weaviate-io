@@ -61,7 +61,7 @@ ieva:
   name: Ieva Urbaite
   title: Marketing
   url: https://www.linkedin.com/in/ievaurbaite/
-  image_url: /img/people/icon/ieva.jpg
+  image_url: /img/people/icon/ieva.png
 jessie:
   name: Jessie de Groot
   title: Head of People and Culture
@@ -87,9 +87,14 @@ marion:
   title: Community Manager
   url: https://www.linkedin.com/in/marionnehring/
   image_url: /img/people/icon/marion.jpg
+mary:
+  name: Mary Newhauser
+  title: Machine Learning Engineer
+  url: https://www.linkedin.com/in/mary-newhauser-02273551/
+  image_url: /img/people/icon/mary.png
 pete:
   name: Peter Schramm
-  title: WCS Tech Lead
+  title: WCD Tech Lead
   url: https://github.com/glockenbeat
   image_url: /img/people/icon/pete.jpg
 sebastian:
@@ -114,12 +119,12 @@ zain:
   image_url: /img/people/icon/zain.jpg
 john:
   name: John Trengrove
-  title: Solution Engineer
+  title: Head of Applied Research
   url: https://github.com/trengrj
   image_url: /img/people/icon/john.png
 shukri:
   name: Mohd Shukri Hasan
-  title: Community Solution Engineer
+  title: Integration Solution Engineer
   url: https://github.com/hsm207
   image_url: /img/people/icon/shukri.jpeg
 tommy:
@@ -136,7 +141,7 @@ sam:
   name: Sam Stoelinga
   title: Contributor to Substratus.AI
   url: https://github.com/samos123
-  image_url:  /img/people/icon/sam.png
+  image_url: /img/people/icon/sam.png
 femke:
   name: Femke Plantinga
   title: Content Manager
@@ -157,6 +162,47 @@ victoria:
   image_url: /img/people/icon/victoria.png
 adam:
   name: Adam Chan
-  title: Developer Relations Engineer
+  title: Developer Growth Engineer
   url: https://www.linkedin.com/in/itsajchan/
   image_url: /img/people/icon/adam.png
+asdine:
+  name: Asdine El Hrychy
+  title: Software Engineer
+  url: https://github.com/asdine
+  image_url: /img/people/icon/asdine.jpg
+ajit:
+  name: Ajit Mistry
+  title: Developer Growth Intern
+  url: https://github.com/ajit283
+  image_url: /img/people/icon/ajit.png
+amir:
+  name: Amir Houieh
+  title: Founder & CEO of Unbody
+  url: https://www.unbody.io/
+  image_url: /img/people/icon/amir.jpeg
+charles:
+  name: Charles Frye
+  title: AI Engineer
+  url: https://twitter.com/charles_irl
+  image_url: /img/people/icon/charles-modal.png
+randy:
+  name: Randy Fong
+  title: Senior iOS Developer
+  url: https://www.linkedin.com/in/randy-fong-1530545/
+  image_url: /img/people/icon/randy.jpeg
+charles-pierse:
+  name: Charles Pierse
+  title: Head of Weaviate Labs
+  url: https://github.com/cdpierse
+  image_url: /img/people/icon/charles-pierse.jpg
+akanksha:
+  name: Akanksha Sharma
+  title: Product Management Intern
+  url: https://www.linkedin.com/in/akankshasharmaiitg/
+  image_url: /img/people/icon/akanksha.jpg
+deepti:
+  name: Deepti Naidu
+  title: Partner Solution Engineer
+  url: https://www.linkedin.com/in/deeptinaidu/
+  image_url: /img/people/icon/deepti.png
+
